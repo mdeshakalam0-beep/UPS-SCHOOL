@@ -37,45 +37,26 @@ const LoginPage = () => {
   useEffect(() => {
     const handleRedirect = async () => {
       if (!sessionLoading && session) {
-        let userRole = null;
+        let userRole = 'student'; // Default to student if profile fetch fails or is not found
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('role, first_name, last_name') // Also fetch first_name and last_name for fallback
+          .select('role')
           .eq('id', session.user.id)
           .single();
 
-        if (error) {
-          // If profile is null or error indicates no rows found, attempt to create a basic profile
-          // Supabase's single() returns error when no rows are found.
-          console.warn("User profile not found or error fetching profile:", error);
-          
-          // Attempt to create a basic profile for the user
-          const { data: newUserProfile, error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              first_name: session.user.user_metadata?.first_name || 'New',
-              last_name: session.user.user_metadata?.last_name || 'User',
-              role: 'student', // Default role
-              mobile_number: session.user.user_metadata?.mobile_number || null,
-              class: session.user.user_metadata?.class || null,
-              date_of_birth: session.user.user_metadata?.date_of_birth || null,
-              gender: session.user.user_metadata?.gender || null,
-            })
-            .select('role')
-            .single();
-
-          if (insertError) {
-            console.error("Error creating fallback profile:", insertError);
-            showError("Failed to create user profile. Please contact support.");
-            await supabase.auth.signOut();
-            navigate("/");
-            return;
-          }
-          userRole = newUserProfile?.role;
-          showSuccess("Basic profile created. Please update your details.");
+        if (error && error.code !== 'PGRST116') { // PGRST116 means "no rows found" for single()
+          console.error("Error fetching user profile:", error);
+          showError("Failed to fetch user profile. Please try again.");
+          // Do not sign out here, let them proceed to a default dashboard
+          // The dashboard can then prompt them to complete their profile.
+        } else if (profile) {
+          userRole = profile.role;
         } else {
-          userRole = profile?.role;
+          // Profile not found (PGRST116 error or data is null), assume new user, default to student role.
+          // The handle_new_user trigger should have created it.
+          // If it didn't, the user will land on student dashboard and can update profile.
+          console.warn("User profile not found after login. Defaulting to student role.");
+          showSuccess("Welcome! Please complete your profile details.");
         }
 
         if (userRole === 'admin') {
