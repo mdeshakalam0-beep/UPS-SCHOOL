@@ -8,12 +8,22 @@ import StudentDashboardPage from "./pages/StudentDashboardPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ObjectiveTestPage from "./pages/ObjectiveTestPage";
 import SubjectiveTestPage from "./pages/SubjectiveTestPage";
-import RecordedClassPage from "./pages/RecordedClassPage"; // New import
-import LiveClassPage from "./pages/LiveClassPage";         // New import
-import ResultsPage from "./pages/ResultsPage";             // New import
-import NotesPdfPage from "./pages/NotesPdfPage";           // New import
-import DobitBoxPage from "./pages/DobitBoxPage";           // New import
+import RecordedClassPage from "./pages/RecordedClassPage";
+import LiveClassPage from "./pages/LiveClassPage";
+import ResultsPage from "./pages/ResultsPage";
+import NotesPdfPage from "./pages/NotesPdfPage";
+import DobitBoxPage from "./pages/DobitBoxPage";
 import NotFound from "./pages/NotFound";
+
+// Admin Module Pages
+import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
+import ManageNotesPage from "./pages/admin/ManageNotesPage";
+import ManageObjectiveTestsPage from "./pages/admin/ManageObjectiveTestsPage";
+import ManageSubjectiveTestsPage from "./pages/admin/ManageSubjectiveTestsPage";
+import ResolveDobitsPage from "./pages/admin/ResolveDobitsPage";
+import ViewResultsPage from "./pages/admin/ViewResultsPage";
+import ManageBannersNotificationsPage from "./pages/admin/ManageBannersNotificationsPage";
+
 
 const queryClient = new QueryClient();
 
@@ -29,11 +39,21 @@ const App = () => (
           <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
           <Route path="/objective-test" element={<ObjectiveTestPage />} />
           <Route path="/subjective-test" element={<SubjectiveTestPage />} />
-          <Route path="/recorded-class" element={<RecordedClassPage />} /> {/* New route */}
-          <Route path="/live-class" element={<LiveClassPage />} />         {/* New route */}
-          <Route path="/results" element={<ResultsPage />} />             {/* New route */}
-          <Route path="/notes-pdf" element={<NotesPdfPage />} />           {/* New route */}
-          <Route path="/dobit-box" element={<DobitBoxPage />} />           {/* New route */}
+          <Route path="/recorded-class" element={<RecordedClassPage />} />
+          <Route path="/live-class" element={<LiveClassPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/notes-pdf" element={<NotesPdfPage />} />
+          <Route path="/dobit-box" element={<DobitBoxPage />} />
+
+          {/* Admin Module Routes (can be nested under /admin-dashboard if desired, but for now direct routes) */}
+          <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
+          <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
+          <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
+          <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
+          <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} />
+          <Route path="/admin/view-results" element={<ViewResultsPage />} />
+          <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
