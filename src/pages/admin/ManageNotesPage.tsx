@@ -15,15 +15,19 @@ interface Note {
   id: string;
   title: string;
   description: string;
-  fileUrl: string; // Placeholder for file URL
+  // For now, file will be stored as a File object in state,
+  // but for persistence, this would be a URL from Supabase Storage.
+  file: File | null; 
+  fileUrlDisplay: string; // To display the file name or URL if already uploaded
   class: string;
   subject: string;
 }
 
+// Mock data for notes. In a real app, 'file' would be a URL from storage.
 const mockNotes: Note[] = [
-  { id: "n1", title: "Physics Chapter 1", description: "Introduction to Mechanics", fileUrl: "https://example.com/physics_ch1.pdf", class: "11th", subject: "Physics" },
-  { id: "n2", title: "Maths Algebra Basics", description: "Equations and Inequalities", fileUrl: "https://example.com/maths_algebra.pdf", class: "10th", subject: "Mathematics" },
-  { id: "n3", title: "History Mughal Empire", description: "Rise and Fall of Mughal Dynasty", fileUrl: "https://example.com/history_mughal.pdf", class: "9th", subject: "History" },
+  { id: "n1", title: "Physics Chapter 1", description: "Introduction to Mechanics", file: null, fileUrlDisplay: "physics_ch1.pdf", class: "11th", subject: "Physics" },
+  { id: "n2", title: "Maths Algebra Basics", description: "Equations and Inequalities", file: null, fileUrlDisplay: "maths_algebra.pdf", class: "10th", subject: "Mathematics" },
+  { id: "n3", title: "History Mughal Empire", description: "Rise and Fall of Mughal Dynasty", file: null, fileUrlDisplay: "history_mughal.pdf", class: "9th", subject: "History" },
 ];
 
 const ManageNotesPage = () => {
@@ -33,48 +37,64 @@ const ManageNotesPage = () => {
   const [newNoteData, setNewNoteData] = useState<Omit<Note, "id">>({
     title: "",
     description: "",
-    fileUrl: "",
+    file: null,
+    fileUrlDisplay: "",
     class: "",
     subject: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setNewNoteData((prev) => ({ ...prev, [id]: value }));
+    const { id, value, files } = e.target;
+    if (id === "file" && files && files.length > 0) {
+      setNewNoteData((prev) => ({ ...prev, file: files[0], fileUrlDisplay: files[0].name }));
+    } else {
+      setNewNoteData((prev) => ({ ...prev, [id]: value }));
+    }
   };
 
   const handleAddNote = () => {
-    if (!newNoteData.title || !newNoteData.class || !newNoteData.subject || !newNoteData.fileUrl) {
-      showError("Please fill in all required fields (Title, Class, Subject, File URL).");
+    if (!newNoteData.title || !newNoteData.class || !newNoteData.subject || !newNoteData.file) {
+      showError("Please fill in all required fields (Title, Class, Subject, and upload a File).");
       return;
     }
+    // In a real app with Supabase, you would upload newNoteData.file here
+    // and get a fileUrl back to store in the database.
     const newNote: Note = {
       ...newNoteData,
       id: String(notes.length + 1), // Simple ID generation
+      fileUrlDisplay: newNoteData.file?.name || "", // Display file name
     };
     setNotes((prev) => [...prev, newNote]);
-    showSuccess("Note added successfully!");
-    setNewNoteData({ title: "", description: "", fileUrl: "", class: "", subject: "" });
+    showSuccess("Note added successfully! (File not actually uploaded to server yet)");
+    setNewNoteData({ title: "", description: "", file: null, fileUrlDisplay: "", class: "", subject: "" });
     setIsDialogOpen(false);
   };
 
   const handleEditNote = (note: Note) => {
     setEditingNote(note);
-    setNewNoteData({ ...note }); // Populate form with existing data
+    setNewNoteData({ ...note, file: null }); // Don't pre-fill file input, user must re-upload if changing
     setIsDialogOpen(true);
   };
 
   const handleUpdateNote = () => {
-    if (!editingNote || !newNoteData.title || !newNoteData.class || !newNoteData.subject || !newNoteData.fileUrl) {
-      showError("Please fill in all required fields (Title, Class, Subject, File URL).");
+    if (!editingNote || !newNoteData.title || !newNoteData.class || !newNoteData.subject) {
+      showError("Please fill in all required fields (Title, Class, Subject).");
       return;
     }
+    // If newNoteData.file exists, it means a new file was selected and needs to be uploaded.
+    // Otherwise, keep the existing fileUrlDisplay.
+    const updatedFileUrlDisplay = newNoteData.file ? newNoteData.file.name : editingNote.fileUrlDisplay;
+
     setNotes((prev) =>
-      prev.map((n) => (n.id === editingNote.id ? { ...newNoteData, id: editingNote.id } : n))
+      prev.map((n) =>
+        n.id === editingNote.id
+          ? { ...newNoteData, id: editingNote.id, file: newNoteData.file, fileUrlDisplay: updatedFileUrlDisplay }
+          : n
+      )
     );
-    showSuccess("Note updated successfully!");
+    showSuccess("Note updated successfully! (File not actually uploaded to server yet)");
     setEditingNote(null);
-    setNewNoteData({ title: "", description: "", fileUrl: "", class: "", subject: "" });
+    setNewNoteData({ title: "", description: "", file: null, fileUrlDisplay: "", class: "", subject: "" });
     setIsDialogOpen(false);
   };
 
@@ -88,7 +108,7 @@ const ManageNotesPage = () => {
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setEditingNote(null);
-    setNewNoteData({ title: "", description: "", fileUrl: "", class: "", subject: "" });
+    setNewNoteData({ title: "", description: "", file: null, fileUrlDisplay: "", class: "", subject: "" });
   };
 
   return (
@@ -97,7 +117,7 @@ const ManageNotesPage = () => {
         <CardTitle className="text-2xl font-bold text-primary">Manage Notes / PDFs</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingNote(null); setNewNoteData({ title: "", description: "", fileUrl: "", class: "", subject: "" }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button onClick={() => { setEditingNote(null); setNewNoteData({ title: "", description: "", file: null, fileUrlDisplay: "", class: "", subject: "" }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Note
             </Button>
           </DialogTrigger>
@@ -120,10 +140,15 @@ const ManageNotesPage = () => {
                 <Textarea id="description" value={newNoteData.description} onChange={handleInputChange} className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="fileUrl" className="text-right">
-                  File URL
+                <Label htmlFor="file" className="text-right">
+                  Upload File
                 </Label>
-                <Input id="fileUrl" type="url" value={newNoteData.fileUrl} onChange={handleInputChange} className="col-span-3" />
+                <Input id="file" type="file" accept=".pdf,image/*,video/*" onChange={handleInputChange} className="col-span-3" />
+                {newNoteData.fileUrlDisplay && (
+                  <div className="col-span-4 text-sm text-muted-foreground text-right">
+                    Current: {newNoteData.fileUrlDisplay}
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="class" className="text-right">
@@ -154,7 +179,7 @@ const ManageNotesPage = () => {
               <TableHead>Title</TableHead>
               <TableHead>Class</TableHead>
               <TableHead>Subject</TableHead>
-              <TableHead>File URL</TableHead>
+              <TableHead>File</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -165,9 +190,8 @@ const ManageNotesPage = () => {
                 <TableCell>{note.class}</TableCell>
                 <TableCell>{note.subject}</TableCell>
                 <TableCell>
-                  <a href={note.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                    View File
-                  </a>
+                  {/* In a real app, this would be a link to the file's URL from storage */}
+                  {note.fileUrlDisplay || "No file"}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleEditNote(note)} className="mr-2">
