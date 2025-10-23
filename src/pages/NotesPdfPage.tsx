@@ -1,21 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Download } from "lucide-react";
+import { ArrowLeft, BookOpen, Download, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient"; // Supabase क्लाइंट इम्पोर्ट करें
+import { showError } from "@/utils/toast";
 
-// Mock data for notes (this would come from Supabase in a real app)
-const mockStudentNotes = [
-  { id: "sn1", title: "Physics Chapter 1: Mechanics", description: "Detailed notes on classical mechanics.", fileUrl: "https://example.com/physics_ch1.pdf", class: "11th", subject: "Physics" },
-  { id: "sn2", title: "Mathematics: Basic Algebra", description: "Fundamental concepts of algebra with examples.", fileUrl: "https://example.com/maths_algebra.pdf", class: "10th", subject: "Mathematics" },
-  { id: "sn3", title: "History: Ancient Civilizations", description: "Overview of major ancient civilizations.", fileUrl: "https://example.com/history_ancient.pdf", class: "9th", subject: "History" },
-  { id: "sn4", title: "Chemistry: Periodic Table", description: "Understanding elements and their properties.", fileUrl: "https://example.com/chemistry_periodic.pdf", class: "11th", subject: "Chemistry" },
-];
+interface Note {
+  id: string;
+  title: string;
+  description: string;
+  file_url: string;
+  class: string;
+  subject: string;
+  created_at: string;
+}
 
 const NotesPdfPage = () => {
   const navigate = useNavigate();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchNotes = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("notes").select("*").order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error fetching notes:", error);
+      showError("Failed to load notes.");
+    } else {
+      setNotes(data as Note[]);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
@@ -34,9 +56,14 @@ const NotesPdfPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {mockStudentNotes.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Loading notes...</span>
+            </div>
+          ) : notes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {mockStudentNotes.map((note) => (
+              {notes.map((note) => (
                 <Card key={note.id} className="p-4 flex flex-col justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">{note.title}</h3>
@@ -44,7 +71,7 @@ const NotesPdfPage = () => {
                     <p className="text-xs text-gray-500">Class: {note.class} | Subject: {note.subject}</p>
                   </div>
                   <div className="mt-4">
-                    <a href={note.fileUrl} target="_blank" rel="noopener noreferrer">
+                    <a href={note.file_url} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" className="w-full">
                         <Download className="mr-2 h-4 w-4" /> Download / View
                       </Button>
