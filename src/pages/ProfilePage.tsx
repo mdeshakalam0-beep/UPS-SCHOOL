@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Gender, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Loader2 } from "lucide-react"; // Removed Gender, kept User
 import { useSession } from "@/components/SessionContextProvider";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
@@ -136,7 +136,7 @@ const ProfilePage = () => {
             <p className="text-lg text-foreground">Date of Birth: <span className="font-medium">{profile.date_of_birth || "N/A"}</span></p>
           </div>
           <div className="flex items-center space-x-3">
-            <Gender className="h-5 w-5 text-muted-foreground" />
+            <User className="h-5 w-5 text-muted-foreground" /> {/* Replaced Gender with User */}
             <p className="text-lg text-foreground">Gender: <span className="font-medium">{profile.gender || "N/A"}</span></p>
           </div>
           <div className="flex items-center space-x-3">
