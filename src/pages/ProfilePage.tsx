@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Loader2, Camera, Save, XCircle } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Loader2, Camera, Save, XCircle, Pencil } from "lucide-react";
 import { useSession } from "@/components/SessionContextProvider";
 import { supabase } from "@/lib/supabaseClient";
 import { showError, showSuccess } from "@/utils/toast";
