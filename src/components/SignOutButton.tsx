@@ -6,19 +6,28 @@ import { LogOut, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { showError, showSuccess } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const SignOutButton = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { session } = useSession(); // Get session from context
 
   const handleSignOut = async () => {
     setLoading(true);
+    
+    if (!session) {
+      // If no session is found, just redirect to login.
+      // This prevents calling signOut on an already missing session.
+      showSuccess("No active session found. Redirecting to login.");
+      navigate("/");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        // Even if there's an error (e.g., 403 due to expired token),
-        // we should still attempt to clear the client-side session and redirect.
-        // The supabase.auth.signOut() call itself should clear local storage.
         console.error("Error during sign out:", error.message);
         showError(`Sign out failed: ${error.message}. Attempting to clear local session.`);
       } else {
