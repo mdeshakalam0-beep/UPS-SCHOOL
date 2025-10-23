@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SignOutButton from "@/components/SignOutButton"; // Import SignOutButton
 
 const StudentDashboardPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,11 @@ const StudentDashboardPage = () => {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <Header />
+
+      {/* Sign Out Button for Students */}
+      <div className="flex justify-end mb-4 max-w-4xl mx-auto">
+        <SignOutButton />
+      </div>
 
       {/* Hero Banner (Auto Slider) */}
       <section className="mb-8">
