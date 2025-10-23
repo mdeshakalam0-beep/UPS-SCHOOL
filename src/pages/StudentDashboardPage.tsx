@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import SignOutButton from "@/components/SignOutButton"; // Import SignOutButton
 import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 
 const StudentDashboardPage = () => {
@@ -35,10 +34,10 @@ const StudentDashboardPage = () => {
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Added padding-bottom to account for fixed bottom nav */}
       <Header />
 
-      {/* Sign Out Button for Students */}
-      <div className="flex justify-end mb-4 max-w-4xl mx-auto">
+      {/* Removed Sign Out Button for Students from here */}
+      {/* <div className="flex justify-end mb-4 max-w-4xl mx-auto">
         <SignOutButton />
-      </div>
+      </div> */}
 
       {/* Hero Banner (Auto Slider) */}
       <section className="mb-8">

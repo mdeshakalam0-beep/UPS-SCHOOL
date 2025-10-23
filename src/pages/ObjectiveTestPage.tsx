@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { showSuccess } from "@/utils/toast";
+import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 
 // Mock data for objective questions
 const mockQuestions = [
@@ -118,7 +119,7 @@ const ObjectiveTestPage = () => {
 
   if (!testStarted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
         <Card className="w-full max-w-md shadow-lg rounded-lg text-center">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-primary">Objective Test</CardTitle>
@@ -133,12 +134,13 @@ const ObjectiveTestPage = () => {
             </Button>
           </CardContent>
         </Card>
+        <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
       <Card className="w-full max-w-2xl shadow-lg rounded-lg">
         <CardHeader>
           <div className="flex justify-between items-center mb-4">
@@ -194,6 +196,7 @@ const ObjectiveTestPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
     </div>
   );
 };

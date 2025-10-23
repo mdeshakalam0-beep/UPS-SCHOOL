@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { showSuccess } from "@/utils/toast"; // Corrected import
+import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 
 // Mock data for subjective questions
 const mockSubjectiveQuestions = [
@@ -54,7 +55,7 @@ const SubjectiveTestPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
       <Card className="w-full max-w-3xl shadow-lg rounded-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary">Subjective Test</CardTitle>
@@ -108,6 +109,7 @@ const SubjectiveTestPage = () => {
           </Button>
         </CardFooter>
       </Card>
+      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
     </div>
   );
 };

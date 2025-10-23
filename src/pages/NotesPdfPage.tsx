@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ArrowLeft, BookOpen, Download, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient"; // Supabase क्लाइंट इम्पोर्ट करें
 import { showError } from "@/utils/toast";
+import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 
 interface Note {
   id: string;
@@ -40,7 +41,7 @@ const NotesPdfPage = () => {
   }, [fetchNotes]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
       <div className="w-full max-w-4xl mb-6 flex justify-between items-center">
         <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
           <ArrowLeft className="h-4 w-4" />
@@ -85,6 +86,7 @@ const NotesPdfPage = () => {
           )}
         </CardContent>
       </Card>
+      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
     </div>
   );
 };
