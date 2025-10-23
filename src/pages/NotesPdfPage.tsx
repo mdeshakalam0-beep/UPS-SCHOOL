@@ -3,29 +3,59 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ArrowLeft, BookOpen, Download } from "lucide-react";
+
+// Mock data for notes (this would come from Supabase in a real app)
+const mockStudentNotes = [
+  { id: "sn1", title: "Physics Chapter 1: Mechanics", description: "Detailed notes on classical mechanics.", fileUrl: "https://example.com/physics_ch1.pdf", class: "11th", subject: "Physics" },
+  { id: "sn2", title: "Mathematics: Basic Algebra", description: "Fundamental concepts of algebra with examples.", fileUrl: "https://example.com/maths_algebra.pdf", class: "10th", subject: "Mathematics" },
+  { id: "sn3", title: "History: Ancient Civilizations", description: "Overview of major ancient civilizations.", fileUrl: "https://example.com/history_ancient.pdf", class: "9th", subject: "History" },
+  { id: "sn4", title: "Chemistry: Periodic Table", description: "Understanding elements and their properties.", fileUrl: "https://example.com/chemistry_periodic.pdf", class: "11th", subject: "Chemistry" },
+];
 
 const NotesPdfPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-4xl mb-6">
+      <div className="w-full max-w-4xl mb-6 flex justify-between items-center">
         <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </Button>
       </div>
-      <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
-        <CardHeader>
+      <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
+        <CardHeader className="text-center">
+          <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
           <CardTitle className="text-3xl font-bold text-primary">Notes & PDFs</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Access and download your study materials here.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-lg text-muted-foreground mb-4">
-            This page will contain study notes and downloadable PDF materials.
-          </p>
-          <p className="text-md text-gray-500">Content coming soon!</p>
+        <CardContent className="space-y-4">
+          {mockStudentNotes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {mockStudentNotes.map((note) => (
+                <Card key={note.id} className="p-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">{note.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{note.description}</p>
+                    <p className="text-xs text-gray-500">Class: {note.class} | Subject: {note.subject}</p>
+                  </div>
+                  <div className="mt-4">
+                    <a href={note.fileUrl} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" className="w-full">
+                        <Download className="mr-2 h-4 w-4" /> Download / View
+                      </Button>
+                    </a>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-lg text-muted-foreground">No notes available at the moment.</p>
+          )}
         </CardContent>
       </Card>
     </div>
