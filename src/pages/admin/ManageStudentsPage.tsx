@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,88 +8,186 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { showSuccess, showError } from "@/utils/toast";
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import { Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient"; // Supabase क्लाइंट इम्पोर्ट करें
 
 interface Student {
   id: string;
-  name: string;
-  class: string;
-  dob: string;
-  gender: string;
-  mobile: string;
-  email: string;
+  first_name: string;
+  last_name: string | null;
+  class: string | null;
+  date_of_birth: string | null; // Stored as string (YYYY-MM-DD)
+  gender: string | null;
+  mobile_number: string | null;
+  email: string; // Assuming email is accessible via auth.users or linked
+  role: string;
 }
 
-const mockStudents: Student[] = [
-  { id: "1", name: "Alice Smith", class: "10th", dob: "2008-05-15", gender: "Female", mobile: "9876543210", email: "alice@example.com" },
-  { id: "2", name: "Bob Johnson", class: "9th", dob: "2009-11-22", gender: "Male", mobile: "9988776655", email: "bob@example.com" },
-  { id: "3", name: "Charlie Brown", class: "11th", dob: "2007-03-01", gender: "Male", mobile: "9123456789", email: "charlie@example.com" },
-];
-
 const ManageStudentsPage = () => {
-  const [students, setStudents] = useState<Student[]>(mockStudents);
+  const [students, setStudents] = useState<Student[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [newStudentData, setNewStudentData] = useState<Omit<Student, "id">>({
-    name: "",
+  const [newStudentData, setNewStudentData] = useState<Partial<Student>>({
+    first_name: "",
+    last_name: "",
     class: "",
-    dob: "",
+    date_of_birth: "",
     gender: "",
-    mobile: "",
+    mobile_number: "",
     email: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchStudents = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, first_name, last_name, class, date_of_birth, gender, mobile_number, role, auth_users:id(email)") // Fetch email from auth.users
+      .order("first_name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching students:", error);
+      showError("Failed to load students.");
+    } else {
+      // Map the data to the Student interface, extracting email from auth_users
+      const formattedStudents: Student[] = data.map((profile: any) => ({
+        id: profile.id,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        class: profile.class,
+        date_of_birth: profile.date_of_birth,
+        gender: profile.gender,
+        mobile_number: profile.mobile_number,
+        email: profile.auth_users?.email || "N/A", // Extract email
+        role: profile.role,
+      }));
+      setStudents(formattedStudents);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setNewStudentData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleAddStudent = () => {
-    if (!newStudentData.name || !newStudentData.class || !newStudentData.email) {
-      showError("Please fill in all required fields.");
+  const handleAddStudent = async () => {
+    setIsSubmitting(true);
+    if (!newStudentData.first_name || !newStudentData.email || !newStudentData.class || !newStudentData.mobile_number) {
+      showError("Please fill in all required fields (First Name, Email, Class, Mobile Number).");
+      setIsSubmitting(false);
       return;
     }
-    const newStudent: Student = {
-      ...newStudentData,
-      id: String(students.length + 1), // Simple ID generation
-    };
-    setStudents((prev) => [...prev, newStudent]);
-    showSuccess("Student added successfully!");
-    setNewStudentData({ name: "", class: "", dob: "", gender: "", mobile: "", email: "" });
-    setIsDialogOpen(false);
+
+    try {
+      // For adding a new student, we'd typically create a new user in auth.users first,
+      // which would then trigger handle_new_user to create a profile.
+      // For simplicity here, we'll assume the admin is adding a profile for an *existing* user
+      // or that the user will sign up separately.
+      // A more robust solution would involve creating the user via admin API or inviting them.
+      // For now, we'll simulate adding a profile directly, assuming the user ID exists or will be linked.
+      // This part needs careful consideration for a real-world scenario.
+      // For this exercise, we'll focus on managing existing profiles or profiles created via signup.
+      showError("Adding new students directly from this panel is not yet supported. Please ask the student to sign up first.");
+      setIsSubmitting(false);
+      return;
+    } catch (error: any) {
+      console.error("Error adding student:", error.message);
+      showError(`Failed to add student: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
-    setNewStudentData({ ...student }); // Populate form with existing data
+    setNewStudentData({
+      first_name: student.first_name,
+      last_name: student.last_name,
+      class: student.class,
+      date_of_birth: student.date_of_birth,
+      gender: student.gender,
+      mobile_number: student.mobile_number,
+      email: student.email, // Email is not directly editable here as it's from auth.users
+    });
     setIsDialogOpen(true);
   };
 
-  const handleUpdateStudent = () => {
-    if (!editingStudent || !newStudentData.name || !newStudentData.class || !newStudentData.email) {
-      showError("Please fill in all required fields.");
+  const handleUpdateStudent = async () => {
+    setIsSubmitting(true);
+    if (!editingStudent || !newStudentData.first_name || !newStudentData.class || !newStudentData.mobile_number) {
+      showError("Please fill in all required fields (First Name, Class, Mobile Number).");
+      setIsSubmitting(false);
       return;
     }
-    setStudents((prev) =>
-      prev.map((s) => (s.id === editingStudent.id ? { ...newStudentData, id: editingStudent.id } : s))
-    );
-    showSuccess("Student updated successfully!");
-    setEditingStudent(null);
-    setNewStudentData({ name: "", class: "", dob: "", gender: "", mobile: "", email: "" });
-    setIsDialogOpen(false);
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: newStudentData.first_name,
+          last_name: newStudentData.last_name,
+          class: newStudentData.class,
+          date_of_birth: newStudentData.date_of_birth,
+          gender: newStudentData.gender,
+          mobile_number: newStudentData.mobile_number,
+          // role: newStudentData.role, // Role change should be handled carefully, not via this form
+        })
+        .eq("id", editingStudent.id);
+
+      if (error) {
+        throw error;
+      }
+
+      showSuccess("Student updated successfully!");
+      fetchStudents();
+      handleDialogClose();
+    } catch (error: any) {
+      console.error("Error updating student:", error.message);
+      showError(`Failed to update student: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteStudent = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
-      setStudents((prev) => prev.filter((s) => s.id !== id));
-      showSuccess("Student deleted successfully!");
+  const handleDeleteStudent = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this student? This will also delete their user account.")) {
+      return;
+    }
+
+    try {
+      // Deleting the user from auth.users will cascade delete their profile due to foreign key constraint
+      const { error: authError } = await supabase.auth.admin.deleteUser(id);
+
+      if (authError) {
+        throw authError;
+      }
+
+      showSuccess("Student and associated user account deleted successfully!");
+      fetchStudents();
+    } catch (error: any) {
+      console.error("Error deleting student:", error.message);
+      showError(`Failed to delete student: ${error.message}`);
     }
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setEditingStudent(null);
-    setNewStudentData({ name: "", class: "", dob: "", gender: "", mobile: "", email: "" });
+    setNewStudentData({
+      first_name: "",
+      last_name: "",
+      class: "",
+      date_of_birth: "",
+      gender: "",
+      mobile_number: "",
+      email: "",
+    });
   };
 
   return (
@@ -98,7 +196,7 @@ const ManageStudentsPage = () => {
         <CardTitle className="text-2xl font-bold text-primary">Manage Students</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingStudent(null); setNewStudentData({ name: "", class: "", dob: "", gender: "", mobile: "", email: "" }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button onClick={() => { setEditingStudent(null); setNewStudentData({ first_name: "", last_name: "", class: "", date_of_birth: "", gender: "", mobile_number: "", email: "" }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Student
             </Button>
           </DialogTrigger>
@@ -109,45 +207,52 @@ const ManageStudentsPage = () => {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
+                <Label htmlFor="first_name" className="text-right">
+                  First Name
                 </Label>
-                <Input id="name" value={newStudentData.name} onChange={handleInputChange} className="col-span-3" />
+                <Input id="first_name" value={newStudentData.first_name || ""} onChange={handleInputChange} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="class" className="text-right">
-                  Class
+                <Label htmlFor="last_name" className="text-right">
+                  Last Name
                 </Label>
-                <Input id="class" value={newStudentData.class} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="dob" className="text-right">
-                  DOB
-                </Label>
-                <Input id="dob" type="date" value={newStudentData.dob} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="gender" className="text-right">
-                  Gender
-                </Label>
-                <Input id="gender" value={newStudentData.gender} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="mobile" className="text-right">
-                  Mobile
-                </Label>
-                <Input id="mobile" type="tel" value={newStudentData.mobile} onChange={handleInputChange} className="col-span-3" />
+                <Input id="last_name" value={newStudentData.last_name || ""} onChange={handleInputChange} className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="email" className="text-right">
                   Email
                 </Label>
-                <Input id="email" type="email" value={newStudentData.email} onChange={handleInputChange} className="col-span-3" />
+                <Input id="email" type="email" value={editingStudent?.email || newStudentData.email || ""} className="col-span-3" disabled={!!editingStudent} />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="class" className="text-right">
+                  Class
+                </Label>
+                <Input id="class" value={newStudentData.class || ""} onChange={handleInputChange} className="col-span-3" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="date_of_birth" className="text-right">
+                  DOB
+                </Label>
+                <Input id="date_of_birth" type="date" value={newStudentData.date_of_birth || ""} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="gender" className="text-right">
+                  Gender
+                </Label>
+                <Input id="gender" value={newStudentData.gender || ""} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="mobile_number" className="text-right">
+                  Mobile
+                </Label>
+                <Input id="mobile_number" type="tel" value={newStudentData.mobile_number || ""} onChange={handleInputChange} className="col-span-3" required />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={handleDialogClose}>Cancel</Button>
-              <Button onClick={editingStudent ? handleUpdateStudent : handleAddStudent} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Cancel</Button>
+              <Button onClick={editingStudent ? handleUpdateStudent : handleAddStudent} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingStudent ? "Save Changes" : "Add Student"}
               </Button>
             </DialogFooter>
@@ -155,41 +260,53 @@ const ManageStudentsPage = () => {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Class</TableHead>
-              <TableHead>DOB</TableHead>
-              <TableHead>Gender</TableHead>
-              <TableHead>Mobile</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell className="font-medium">{student.name}</TableCell>
-                <TableCell>{student.class}</TableCell>
-                <TableCell>{student.dob}</TableCell>
-                <TableCell>{student.gender}</TableCell>
-                <TableCell>{student.mobile}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleEditStudent(student)} className="mr-2">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteStudent(student.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading students...</span>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Class</TableHead>
+                <TableHead>DOB</TableHead>
+                <TableHead>Gender</TableHead>
+                <TableHead>Mobile</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {students.length === 0 && (
-          <p className="text-center text-muted-foreground mt-4">No students found. Add a new student to get started!</p>
+            </TableHeader>
+            <TableBody>
+              {students.length > 0 ? (
+                students.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell className="font-medium">{student.first_name} {student.last_name}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>{student.class}</TableCell>
+                    <TableCell>{student.date_of_birth}</TableCell>
+                    <TableCell>{student.gender}</TableCell>
+                    <TableCell>{student.mobile_number}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleEditStudent(student)} className="mr-2">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteStudent(student.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-4">
+                    No students found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         )}
       </CardContent>
     </Card>
