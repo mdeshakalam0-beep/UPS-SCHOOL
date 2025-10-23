@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Added useEffect
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +11,63 @@ import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
-import SignOutButton from "@/components/SignOutButton"; // Import SignOutButton
-import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image } from "lucide-react";
+import SignOutButton from "@/components/SignOutButton";
+import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Loader2 } from "lucide-react"; // Added Loader2
+import { useSession } from "@/components/SessionContextProvider"; // Import useSession
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient"; // Import supabase
 
 const AdminDashboardPage = () => {
+  const navigate = useNavigate();
+  const { session, loading: sessionLoading } = useSession();
   const [activeTab, setActiveTab] = useState("students");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!sessionLoading && session) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching admin profile:", error);
+          // If profile not found or error, assume not admin
+          setUserRole(null);
+          navigate("/student-dashboard"); // Redirect to student dashboard or login
+        } else if (profile?.role === 'admin') {
+          setUserRole('admin');
+        } else {
+          setUserRole('student');
+          navigate("/student-dashboard"); // Redirect if not admin
+        }
+      } else if (!sessionLoading && !session) {
+        // If no session, redirect to login
+        navigate("/");
+      }
+      setRoleLoading(false);
+    };
+
+    fetchUserRole();
+  }, [session, sessionLoading, navigate]);
+
+  if (sessionLoading || roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-3 text-lg text-muted-foreground">Loading admin dashboard...</span>
+      </div>
+    );
+  }
+
+  if (userRole !== 'admin') {
+    // This case should ideally be caught by the useEffect redirect,
+    // but as a fallback, we can render nothing or a message.
+    return null; 
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
@@ -24,7 +76,7 @@ const AdminDashboardPage = () => {
           <h1 className="text-4xl font-bold mb-2 text-primary">Admin Dashboard</h1>
           <p className="text-xl text-muted-foreground">UPS PUBLISH SCHOOL Control Panel</p>
           <div className="mt-4">
-            <SignOutButton /> {/* Add SignOutButton here */}
+            <SignOutButton />
           </div>
         </CardHeader>
       </Card>

@@ -35,11 +35,30 @@ const LoginPage = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!sessionLoading && session) {
-      // For simplicity, we'll redirect all authenticated users to student dashboard for now.
-      // In a real app, you'd check user roles from profiles table.
-      navigate("/student-dashboard"); 
-    }
+    const handleRedirect = async () => {
+      if (!sessionLoading && session) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          showError("Failed to fetch user profile. Please try again.");
+          await supabase.auth.signOut(); // Sign out if profile cannot be fetched
+          navigate("/");
+          return;
+        }
+
+        if (profile?.role === 'admin') {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/student-dashboard");
+        }
+      }
+    };
+    handleRedirect();
   }, [session, sessionLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -57,6 +76,7 @@ const LoginPage = () => {
       } else {
         showSuccess("Login successful!");
         // Redirection will be handled by the useEffect in SessionContextProvider
+        // or the local useEffect after session is established.
       }
     } catch (error: any) {
       showError(error.message);
@@ -87,8 +107,7 @@ const LoginPage = () => {
             class: selectedClass,
             date_of_birth: dateOfBirth.toISOString().split('T')[0], // Format to YYYY-MM-DD
             gender: gender,
-            // You might add a 'role' here if you want to differentiate admin/student on signup
-            // For now, all signups are treated as students.
+            // Role is set to 'student' by the handle_new_user trigger
           },
         },
       });
@@ -97,8 +116,6 @@ const LoginPage = () => {
         showError(error.message);
       } else {
         showSuccess("Signup successful! Please check your email to confirm your account.");
-        // After signup, user needs to confirm email, then they can log in.
-        // We can clear the form or redirect to a confirmation message page.
         setEmail("");
         setPassword("");
         setFullName("");
@@ -117,11 +134,22 @@ const LoginPage = () => {
 
   const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 
-  if (sessionLoading || session) {
+  if (sessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <span className="ml-3 text-lg text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
+
+  // If session exists and not loading, the useEffect will handle redirection,
+  // so we don't render the login form.
+  if (session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-3 text-lg text-muted-foreground">Redirecting...</span>
       </div>
     );
   }
