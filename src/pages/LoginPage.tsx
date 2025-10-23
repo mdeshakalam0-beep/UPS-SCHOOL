@@ -14,14 +14,14 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { showSuccess, showError } from "@/utils/toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // New import
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ADMIN_EMAIL = "UPS372@gmail.com";
 const ADMIN_PASSWORD = "@#ups786#@";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("student"); // State to manage active tab
+  const [activeTab, setActiveTab] = useState("student");
   const [fullName, setFullName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [gmail, setGmail] = useState("");
@@ -33,24 +33,20 @@ const LoginPage = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Admin login check (always possible if credentials match)
-    if (gmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      showSuccess("Admin login successful!");
-      navigate("/admin-dashboard");
-      return;
-    }
-
-    // Student login check (only if student tab is active and all fields are filled)
-    if (activeTab === "student") {
+    if (activeTab === "admin") {
+      if (gmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        showSuccess("Admin login successful!");
+        navigate("/admin-dashboard");
+      } else {
+        showError("Invalid admin credentials.");
+      }
+    } else { // activeTab === "student"
       if (fullName && mobileNumber && gmail && password && selectedClass && dateOfBirth && gender) {
         showSuccess("Student login successful!");
         navigate("/student-dashboard");
       } else {
         showError("Please fill in all student details.");
       }
-    } else {
-      // If admin tab is active but credentials don't match admin, it's an invalid admin attempt
-      showError("Invalid admin credentials.");
     }
   };
 
@@ -70,8 +66,8 @@ const LoginPage = () => {
               <TabsTrigger value="admin">Admin Login</TabsTrigger>
             </TabsList>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              <TabsContent value="student" className="mt-0 space-y-4">
+            <TabsContent value="student" className="mt-0 space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
@@ -173,9 +169,14 @@ const LoginPage = () => {
                     </div>
                   </RadioGroup>
                 </div>
-              </TabsContent>
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Login
+                </Button>
+              </form>
+            </TabsContent>
 
-              <TabsContent value="admin" className="mt-0 space-y-4">
+            <TabsContent value="admin" className="mt-0 space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <Label htmlFor="adminGmail">Gmail</Label>
                   <Input
@@ -198,11 +199,11 @@ const LoginPage = () => {
                     className="mt-1"
                   />
                 </div>
-              </TabsContent>
-              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                Login
-              </Button>
-            </form>
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                  Login
+                </Button>
+              </form>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
