@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/utils/toast";
+import { showSuccess } from "@/utils/toast"; // Corrected import
 
 // Mock data for subjective questions
 const mockSubjectiveQuestions = [
@@ -48,7 +48,7 @@ const SubjectiveTestPage = () => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    toast.showSuccess("Subjective test submitted successfully! Results will be available after admin review.");
+    showSuccess("Subjective test submitted successfully! Results will be available after admin review."); // Using showSuccess
     setIsSubmitting(false);
     navigate("/student-dashboard");
   };

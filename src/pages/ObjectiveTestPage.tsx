@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { toast } from "@/utils/toast";
+import { showSuccess } from "@/utils/toast"; // Corrected import
 
 // Mock data for objective questions
 const mockQuestions = [
@@ -78,7 +78,7 @@ const ObjectiveTestPage = () => {
     } else {
       setTestFinished(true);
       setShowResultDialog(true);
-      toast.showSuccess("Test completed! Calculating results...");
+      showSuccess("Test completed! Calculating results..."); // Using showSuccess
     }
   }, [currentQuestionIndex, totalQuestions, evaluateAnswer]);
 
@@ -102,7 +102,7 @@ const ObjectiveTestPage = () => {
 
   const startTest = () => {
     setTestStarted(true);
-    toast.showSuccess("Objective Test Started! Good luck!");
+    showSuccess("Objective Test Started! Good luck!"); // Using showSuccess
   };
 
   const formatTime = (seconds: number) => {

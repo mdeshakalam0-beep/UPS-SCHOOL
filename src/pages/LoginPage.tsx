@@ -13,7 +13,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { toast } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast"; // Corrected import
 
 const ADMIN_EMAIL = "UPS372@gmail.com";
 const ADMIN_PASSWORD = "@#ups786#@";
@@ -32,13 +32,13 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (gmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      toast.showSuccess("Admin login successful!");
+      showSuccess("Admin login successful!"); // Using showSuccess
       navigate("/admin-dashboard");
     } else if (fullName && mobileNumber && gmail && password && selectedClass && dateOfBirth && gender) {
-      toast.showSuccess("Student login successful!");
+      showSuccess("Student login successful!"); // Using showSuccess
       navigate("/student-dashboard");
     } else {
-      toast.showError("Invalid credentials or missing student details.");
+      showError("Invalid credentials or missing student details."); // Using showError
     }
   };
 
