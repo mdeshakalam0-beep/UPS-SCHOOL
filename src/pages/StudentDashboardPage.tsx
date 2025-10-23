@@ -23,11 +23,11 @@ const StudentDashboardPage = () => {
     { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" },
   ];
 
-  // Placeholder for banner images
+  // Placeholder for banner images - using local paths now
   const bannerImages = [
-    "https://via.placeholder.com/800x300/0066CC/FFFFFF?text=Welcome+to+UPS+Publish+School",
-    "https://via.placeholder.com/800x300/0066CC/FFFFFF?text=Learn+and+Grow+with+Us",
-    "https://via.placeholder.com/800x300/0066CC/FFFFFF?text=Exciting+New+Courses",
+    "/banner1.png",
+    "/banner2.png",
+    "/banner3.png",
   ];
 
   return (

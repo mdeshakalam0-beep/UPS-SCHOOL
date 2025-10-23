@@ -19,7 +19,7 @@ interface Student {
   date_of_birth: string | null; // Stored as string (YYYY-MM-DD)
   gender: string | null;
   mobile_number: string | null;
-  email: string; // Assuming email is accessible via auth.users or linked
+  email: string; // Now directly from profiles table
   role: string;
 }
 
@@ -43,14 +43,14 @@ const ManageStudentsPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, first_name, last_name, class, date_of_birth, gender, mobile_number, role, auth_users:id(email)") // Fetch email from auth.users
+      .select("id, first_name, last_name, class, date_of_birth, gender, mobile_number, role, email") // Fetch email directly from profiles
       .order("first_name", { ascending: true });
 
     if (error) {
       console.error("Error fetching students:", error);
       showError("Failed to load students.");
     } else {
-      // Map the data to the Student interface, extracting email from auth_users
+      // Map the data to the Student interface
       const formattedStudents: Student[] = data.map((profile: any) => ({
         id: profile.id,
         first_name: profile.first_name,
@@ -59,7 +59,7 @@ const ManageStudentsPage = () => {
         date_of_birth: profile.date_of_birth,
         gender: profile.gender,
         mobile_number: profile.mobile_number,
-        email: profile.auth_users?.email || "N/A", // Extract email
+        email: profile.email || "N/A", // Use email from profiles table
         role: profile.role,
       }));
       setStudents(formattedStudents);
@@ -113,7 +113,7 @@ const ManageStudentsPage = () => {
       date_of_birth: student.date_of_birth,
       gender: student.gender,
       mobile_number: student.mobile_number,
-      email: student.email, // Email is not directly editable here as it's from auth.users
+      email: student.email, // Email is now editable if it's in the profiles table
     });
     setIsDialogOpen(true);
   };
@@ -136,6 +136,7 @@ const ManageStudentsPage = () => {
           date_of_birth: newStudentData.date_of_birth,
           gender: newStudentData.gender,
           mobile_number: newStudentData.mobile_number,
+          email: newStudentData.email, // Update email if it's changed
           // role: newStudentData.role, // Role change should be handled carefully, not via this form
         })
         .eq("id", editingStudent.id);
@@ -222,7 +223,7 @@ const ManageStudentsPage = () => {
                 <Label htmlFor="email" className="text-right">
                   Email
                 </Label>
-                <Input id="email" type="email" value={editingStudent?.email || newStudentData.email || ""} className="col-span-3" disabled={!!editingStudent} />
+                <Input id="email" type="email" value={newStudentData.email || ""} onChange={handleInputChange} className="col-span-3" required />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="class" className="text-right">

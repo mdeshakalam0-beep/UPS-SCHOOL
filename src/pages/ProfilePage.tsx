@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Loader2 } from "lucide-react"; // Removed Gender, kept User
+import { ArrowLeft, User, Mail, Phone, CalendarDays, GraduationCap, Loader2 } from "lucide-react";
 import { useSession } from "@/components/SessionContextProvider";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
@@ -14,7 +14,7 @@ import BottomNavigationBar from "@/components/BottomNavigationBar";
 interface UserProfile {
   first_name: string;
   last_name: string | null;
-  email: string;
+  email: string; // Now directly from profiles table
   class: string | null;
   date_of_birth: string | null;
   gender: string | null;
@@ -34,7 +34,7 @@ const ProfilePage = () => {
         setLoadingProfile(true);
         const { data, error } = await supabase
           .from('profiles')
-          .select('first_name, last_name, class, date_of_birth, gender, mobile_number, role, auth_users:id(email)')
+          .select('first_name, last_name, class, date_of_birth, gender, mobile_number, role, email') // Fetch email directly
           .eq('id', user.id)
           .single();
 
@@ -46,7 +46,7 @@ const ProfilePage = () => {
           setProfile({
             first_name: data.first_name,
             last_name: data.last_name,
-            email: data.auth_users?.email || user.email || "N/A",
+            email: data.email || user.email || "N/A", // Fallback to user.email if profile.email is null
             class: data.class,
             date_of_birth: data.date_of_birth,
             gender: data.gender,
