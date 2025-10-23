@@ -37,21 +37,48 @@ const LoginPage = () => {
   useEffect(() => {
     const handleRedirect = async () => {
       if (!sessionLoading && session) {
+        let userRole = null;
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, first_name, last_name') // Also fetch first_name and last_name for fallback
           .eq('id', session.user.id)
           .single();
 
         if (error) {
-          console.error("Error fetching profile:", error);
-          showError("Failed to fetch user profile. Please try again.");
-          await supabase.auth.signOut(); // Sign out if profile cannot be fetched
-          navigate("/");
-          return;
+          // If profile is null or error indicates no rows found, attempt to create a basic profile
+          // Supabase's single() returns error when no rows are found.
+          console.warn("User profile not found or error fetching profile:", error);
+          
+          // Attempt to create a basic profile for the user
+          const { data: newUserProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: session.user.id,
+              first_name: session.user.user_metadata?.first_name || 'New',
+              last_name: session.user.user_metadata?.last_name || 'User',
+              role: 'student', // Default role
+              mobile_number: session.user.user_metadata?.mobile_number || null,
+              class: session.user.user_metadata?.class || null,
+              date_of_birth: session.user.user_metadata?.date_of_birth || null,
+              gender: session.user.user_metadata?.gender || null,
+            })
+            .select('role')
+            .single();
+
+          if (insertError) {
+            console.error("Error creating fallback profile:", insertError);
+            showError("Failed to create user profile. Please contact support.");
+            await supabase.auth.signOut();
+            navigate("/");
+            return;
+          }
+          userRole = newUserProfile?.role;
+          showSuccess("Basic profile created. Please update your details.");
+        } else {
+          userRole = profile?.role;
         }
 
-        if (profile?.role === 'admin') {
+        if (userRole === 'admin') {
           navigate("/admin-dashboard");
         } else {
           navigate("/student-dashboard");
