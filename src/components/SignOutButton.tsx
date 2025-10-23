@@ -6,41 +6,42 @@ import { LogOut, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { showError, showSuccess } from '@/utils/toast';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '@/components/SessionContextProvider'; // Import useSession
+// useSession को अब सीधे signOut लॉजिक में उपयोग नहीं किया जाएगा,
+// बल्कि supabase.auth.getSession() का उपयोग किया जाएगा।
+// import { useSession } from '@/components/SessionContextProvider'; 
 
 const SignOutButton = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { session } = useSession(); // Get session from context
+  // const { session } = useSession(); // अब सीधे supabase.auth.getSession() का उपयोग करेंगे
 
   const handleSignOut = async () => {
     setLoading(true);
-    
-    if (!session) {
-      // If no session is found, just redirect to login.
-      // This prevents calling signOut on an already missing session.
-      showSuccess("No active session found. Redirecting to login.");
-      navigate("/");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error during sign out:", error.message);
-        showError(`Sign out failed: ${error.message}. Attempting to clear local session.`);
+      // Supabase क्लाइंट से सीधे वर्तमान सत्र प्राप्त करें
+      const { data: { session: currentSupabaseSession }, error: getSessionError } = await supabase.auth.getSession();
+
+      if (getSessionError || !currentSupabaseSession) {
+        console.warn("No active Supabase session found. Redirecting directly.");
+        showSuccess("No active session found. Redirecting to login.");
+        navigate("/");
+        return; // यदि कोई सत्र नहीं है तो जल्दी बाहर निकलें
+      }
+
+      // यदि एक सत्र पाया जाता है, तो signOut के साथ आगे बढ़ें
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        console.error("Error during sign out:", signOutError.message);
+        showError(`Sign out failed: ${signOutError.message}. Attempting to clear local session.`);
       } else {
         showSuccess("Successfully signed out!");
       }
-      // Always redirect to the login page after attempting to sign out,
-      // as the local session should be cleared by supabase.auth.signOut()
-      // regardless of server response for the token.
+      // signOut के प्रयास के बाद हमेशा लॉगिन पेज पर रीडायरेक्ट करें
       navigate("/");
     } catch (error: any) {
       console.error("Unexpected error during sign out:", error.message);
       showError(`An unexpected error occurred during sign out: ${error.message}`);
-      navigate("/"); // Ensure redirection even on unexpected errors
+      navigate("/"); // अप्रत्याशित त्रुटियों पर भी रीडायरेक्शन सुनिश्चित करें
     } finally {
       setLoading(false);
     }
