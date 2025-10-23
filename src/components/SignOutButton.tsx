@@ -16,13 +16,22 @@ const SignOutButton = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        showError(error.message);
+        // Even if there's an error (e.g., 403 due to expired token),
+        // we should still attempt to clear the client-side session and redirect.
+        // The supabase.auth.signOut() call itself should clear local storage.
+        console.error("Error during sign out:", error.message);
+        showError(`Sign out failed: ${error.message}. Attempting to clear local session.`);
       } else {
         showSuccess("Successfully signed out!");
-        navigate("/"); // Redirect to login page after sign out
       }
+      // Always redirect to the login page after attempting to sign out,
+      // as the local session should be cleared by supabase.auth.signOut()
+      // regardless of server response for the token.
+      navigate("/");
     } catch (error: any) {
-      showError(error.message);
+      console.error("Unexpected error during sign out:", error.message);
+      showError(`An unexpected error occurred during sign out: ${error.message}`);
+      navigate("/"); // Ensure redirection even on unexpected errors
     } finally {
       setLoading(false);
     }
