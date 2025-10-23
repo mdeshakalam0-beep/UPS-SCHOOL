@@ -5,12 +5,13 @@ import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import ManageStudentsPage from "./admin/ManageStudentsPage";
-import ManageNotesPage from "./admin/ManageNotesPage";
+import ManageNotesPage from "././admin/ManageNotesPage";
 import ManageObjectiveTestsPage from "./admin/ManageObjectiveTestsPage";
 import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
+import SignOutButton from "@/components/SignOutButton"; // Import SignOutButton
 import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image } from "lucide-react";
 
 const AdminDashboardPage = () => {
@@ -22,6 +23,9 @@ const AdminDashboardPage = () => {
         <CardHeader className="text-center">
           <h1 className="text-4xl font-bold mb-2 text-primary">Admin Dashboard</h1>
           <p className="text-xl text-muted-foreground">UPS PUBLISH SCHOOL Control Panel</p>
+          <div className="mt-4">
+            <SignOutButton /> {/* Add SignOutButton here */}
+          </div>
         </CardHeader>
       </Card>
 

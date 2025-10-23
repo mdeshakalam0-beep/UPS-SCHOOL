@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -9,96 +9,149 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { showSuccess, showError } from "@/utils/toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const ADMIN_EMAIL = "UPS372@gmail.com";
-const ADMIN_PASSWORD = "@#ups786#@";
+import { supabase } from "@/lib/supabaseClient";
+import { useSession } from "@/components/SessionContextProvider"; // Import useSession
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("student");
+  const { session, loading: sessionLoading } = useSession(); // Get session and loading state
+  const [activeTab, setActiveTab] = useState("login"); // Changed default tab to login
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Signup specific states
   const [fullName, setFullName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
-  const [gmail, setGmail] = useState("");
-  const [password, setPassword] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [gender, setGender] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!sessionLoading && session) {
+      // For simplicity, we'll redirect all authenticated users to student dashboard for now.
+      // In a real app, you'd check user roles from profiles table.
+      navigate("/student-dashboard"); 
+    }
+  }, [session, sessionLoading, navigate]);
 
-    if (activeTab === "admin") {
-      if (gmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        showSuccess("Admin login successful!");
-        navigate("/admin-dashboard");
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        showError(error.message);
       } else {
-        showError("Invalid admin credentials.");
+        showSuccess("Login successful!");
+        // Redirection will be handled by the useEffect in SessionContextProvider
       }
-    } else { // activeTab === "student"
-      if (fullName && mobileNumber && gmail && password && selectedClass && dateOfBirth && gender) {
-        showSuccess("Student login successful!");
-        navigate("/student-dashboard");
+    } catch (error: any) {
+      showError(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    if (!fullName || !mobileNumber || !email || !password || !selectedClass || !dateOfBirth || !gender) {
+      showError("Please fill in all required fields for signup.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: fullName.split(' ')[0] || '',
+            last_name: fullName.split(' ').slice(1).join(' ') || '',
+            mobile_number: mobileNumber,
+            class: selectedClass,
+            date_of_birth: dateOfBirth.toISOString().split('T')[0], // Format to YYYY-MM-DD
+            gender: gender,
+            // You might add a 'role' here if you want to differentiate admin/student on signup
+            // For now, all signups are treated as students.
+          },
+        },
+      });
+
+      if (error) {
+        showError(error.message);
       } else {
-        showError("Please fill in all student details.");
+        showSuccess("Signup successful! Please check your email to confirm your account.");
+        // After signup, user needs to confirm email, then they can log in.
+        // We can clear the form or redirect to a confirmation message page.
+        setEmail("");
+        setPassword("");
+        setFullName("");
+        setMobileNumber("");
+        setSelectedClass("");
+        setDateOfBirth(undefined);
+        setGender("");
+        setActiveTab("login"); // Switch back to login tab
       }
+    } catch (error: any) {
+      showError(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+
+  if (sessionLoading || session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-3 text-lg text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg rounded-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary">UPS PUBLISH SCHOOL</CardTitle>
-          <CardDescription className="text-muted-foreground">Login to your account</CardDescription>
+          <CardDescription className="text-muted-foreground">Login or Sign Up to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="student">Student Login</TabsTrigger>
-              <TabsTrigger value="admin">Admin Login</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="student" className="mt-0 space-y-4">
+            <TabsContent value="login" className="mt-0 space-y-4">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="John Doe"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="mobileNumber">Mobile Number</Label>
-                  <Input
-                    id="mobileNumber"
-                    type="tel"
-                    placeholder="123-456-7890"
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="gmail">Gmail</Label>
-                  <Input
-                    id="gmail"
+                    id="email"
                     type="email"
                     placeholder="john.doe@example.com"
-                    value={gmail}
-                    onChange={(e) => setGmail(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="mt-1"
+                    required
                   />
                 </div>
                 <div>
@@ -110,11 +163,69 @@ const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-1"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Login
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="signup" className="mt-0 space-y-4">
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="mobileNumber">Mobile Number</Label>
+                  <Input
+                    id="mobileNumber"
+                    type="tel"
+                    placeholder="123-456-7890"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="signupEmail">Email</Label>
+                  <Input
+                    id="signupEmail"
+                    type="email"
+                    placeholder="john.doe@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="signupPassword">Password</Label>
+                  <Input
+                    id="signupPassword"
+                    type="password"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1"
+                    required
                   />
                 </div>
                 <div>
                   <Label htmlFor="class">Class</Label>
-                  <Select onValueChange={setSelectedClass} value={selectedClass}>
+                  <Select onValueChange={setSelectedClass} value={selectedClass} required>
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Select your class" />
                     </SelectTrigger>
@@ -154,7 +265,7 @@ const LoginPage = () => {
                 </div>
                 <div>
                   <Label>Gender</Label>
-                  <RadioGroup onValueChange={setGender} value={gender} className="flex space-x-4 mt-1">
+                  <RadioGroup onValueChange={setGender} value={gender} className="flex space-x-4 mt-1" required>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="male" id="male" />
                       <Label htmlFor="male">Male</Label>
@@ -169,38 +280,9 @@ const LoginPage = () => {
                     </div>
                   </RadioGroup>
                 </div>
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Login
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="admin" className="mt-0 space-y-4">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <Label htmlFor="adminGmail">Gmail</Label>
-                  <Input
-                    id="adminGmail"
-                    type="email"
-                    placeholder="UPS372@gmail.com"
-                    value={gmail}
-                    onChange={(e) => setGmail(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="adminPassword">Password</Label>
-                  <Input
-                    id="adminPassword"
-                    type="password"
-                    placeholder="@#ups786#@"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Login
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Sign Up
                 </Button>
               </form>
             </TabsContent>

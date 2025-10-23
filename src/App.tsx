@@ -14,6 +14,7 @@ import ResultsPage from "./pages/ResultsPage";
 import NotesPdfPage from "./pages/NotesPdfPage";
 import DobitBoxPage from "./pages/DobitBoxPage";
 import NotFound from "./pages/NotFound";
+import { SessionContextProvider } from "./components/SessionContextProvider"; // Import SessionContextProvider
 
 // Admin Module Pages
 import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
@@ -33,30 +34,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/student-dashboard" element={<StudentDashboardPage />} />
-          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-          <Route path="/objective-test" element={<ObjectiveTestPage />} />
-          <Route path="/subjective-test" element={<SubjectiveTestPage />} />
-          <Route path="/recorded-class" element={<RecordedClassPage />} />
-          <Route path="/live-class" element={<LiveClassPage />} />
-          <Route path="/results" element={<ResultsPage />} />
-          <Route path="/notes-pdf" element={<NotesPdfPage />} />
-          <Route path="/dobit-box" element={<DobitBoxPage />} />
+        <SessionContextProvider> {/* Wrap routes with SessionContextProvider */}
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/student-dashboard" element={<StudentDashboardPage />} />
+            <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+            <Route path="/objective-test" element={<ObjectiveTestPage />} />
+            <Route path="/subjective-test" element={<SubjectiveTestPage />} />
+            <Route path="/recorded-class" element={<RecordedClassPage />} />
+            <Route path="/live-class" element={<LiveClassPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/notes-pdf" element={<NotesPdfPage />} />
+            <Route path="/dobit-box" element={<DobitBoxPage />} />
 
-          {/* Admin Module Routes (can be nested under /admin-dashboard if desired, but for now direct routes) */}
-          <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
-          <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
-          <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
-          <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
-          <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} />
-          <Route path="/admin/view-results" element={<ViewResultsPage />} />
-          <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
+            {/* Admin Module Routes (can be nested under /admin-dashboard if desired, but for now direct routes) */}
+            <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
+            <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
+            <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
+            <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
+            <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} />
+            <Route path="/admin/view-results" element={<ViewResultsPage />} />
+            <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
