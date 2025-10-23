@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Added CardDescription
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { showSuccess } from "@/utils/toast"; // Corrected import
+import { showSuccess } from "@/utils/toast";
 
 // Mock data for objective questions
 const mockQuestions = [
@@ -78,7 +78,7 @@ const ObjectiveTestPage = () => {
     } else {
       setTestFinished(true);
       setShowResultDialog(true);
-      showSuccess("Test completed! Calculating results..."); // Using showSuccess
+      showSuccess("Test completed! Calculating results...");
     }
   }, [currentQuestionIndex, totalQuestions, evaluateAnswer]);
 
@@ -102,7 +102,7 @@ const ObjectiveTestPage = () => {
 
   const startTest = () => {
     setTestStarted(true);
-    showSuccess("Objective Test Started! Good luck!"); // Using showSuccess
+    showSuccess("Objective Test Started! Good luck!");
   };
 
   const formatTime = (seconds: number) => {
