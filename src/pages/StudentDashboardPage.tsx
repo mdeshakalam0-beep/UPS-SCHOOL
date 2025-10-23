@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SignOutButton from "@/components/SignOutButton"; // Import SignOutButton
+import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 
 const StudentDashboardPage = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const StudentDashboardPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Added padding-bottom to account for fixed bottom nav */}
       <Header />
 
       {/* Sign Out Button for Students */}
@@ -97,6 +98,7 @@ const StudentDashboardPage = () => {
       </section>
 
       <MadeWithDyad />
+      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
     </div>
   );
 };
