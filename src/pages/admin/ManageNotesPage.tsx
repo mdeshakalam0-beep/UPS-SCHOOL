@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { showSuccess, showError } from "@/utils/toast";
 import { BookOpen, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/lib/supabaseClient"; // Supabase क्लाइंट इम्पोर्ट करें
+import { supabase } from "@/lib/supabaseClient";
+import { useSession } from "@/components/SessionContextProvider"; // Import useSession
 
 interface Note {
   id: string;
@@ -20,9 +21,11 @@ interface Note {
   class: string;
   subject: string;
   created_at: string;
+  user_id: string; // Added user_id
 }
 
 const ManageNotesPage = () => {
+  const { user } = useSession(); // Get current user from session
   const [notes, setNotes] = useState<Note[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -93,6 +96,11 @@ const ManageNotesPage = () => {
       setIsSubmitting(false);
       return;
     }
+    if (!user) {
+      showError("You must be logged in to add a note.");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const fileUrl = await uploadFile(newNoteData.file);
@@ -103,6 +111,7 @@ const ManageNotesPage = () => {
         file_url: fileUrl,
         class: newNoteData.class,
         subject: newNoteData.subject,
+        user_id: user.id, // Include user_id here
       });
 
       if (error) {
