@@ -7,7 +7,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2 } from "lucide-react";
-import { useNavigate } => "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Corrected import statement
 import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
