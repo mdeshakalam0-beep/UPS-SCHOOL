@@ -7,12 +7,12 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import ManageStudentsPage from "./admin/ManageStudentsPage";
 import ManageNotesPage from "././admin/ManageNotesPage";
 import ManageObjectiveTestsPage from "./admin/ManageObjectiveTestsPage";
-import ManageSubjectiveTestsPage from "./admin/ManageManageSubjectiveTestsPage";
+import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
 import ManageRecordedClassesPage from "./admin/ManageRecordedClassesPage";
-import ManageLiveClassesPage from "./admin/ManageLiveClassesPage"; // New import for Live Classes
+import ManageLiveClassesPage from "./admin/ManageLiveClassesPage"; // New import
 import SignOutButton from "@/components/SignOutButton";
 import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Video, MonitorPlay, Loader2 } from "lucide-react"; // Added MonitorPlay icon
 import { useSession } from "@/components/SessionContextProvider";
