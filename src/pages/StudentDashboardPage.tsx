@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import Autoplay from "embla-carousel-autoplay"; // Import Autoplay
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // New import for Avatar
+import { Badge } from "@/components/ui/badge"; // Import Badge component
 
 interface Banner {
   id: string;
