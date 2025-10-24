@@ -39,7 +39,7 @@ const App = () => (
     <TooltipProvider>
       {/* Removed Radix UI Toaster */}
       <Sonner /> {/* Keep only the sonner Toaster */}
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true }}> {/* Added future flag here */}
         <SessionContextProvider>
           <NotificationProvider> {/* Wrap with NotificationProvider */}
             <Routes>
