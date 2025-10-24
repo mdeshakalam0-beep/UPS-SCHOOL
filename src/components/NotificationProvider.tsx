@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { supabase } from '@/lib/supabaseClient';
 import { useSession } from '@/components/SessionContextProvider';
 import { showError, showSuccess } from '@/utils/toast';
-import { Toaster } from 'sonner'; // Using sonner for toasts
+// Removed: import { Toaster } from 'sonner'; // Using sonner for toasts
 
 interface Notification {
   id: string;
@@ -161,7 +161,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, clearAllNotifications }}>
       {children}
-      <Toaster /> {/* Sonner Toaster for displaying notifications */}
+      {/* Removed: <Toaster /> */} {/* Sonner Toaster for displaying notifications */}
     </NotificationContext.Provider>
   );
 };
