@@ -67,18 +67,15 @@ const RecordedVideoViewerPage = () => {
         </Button>
       </div>
       <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
-        <CardHeader className="text-center">
+        <CardHeader className="text-center pb-4"> {/* Reduced padding-bottom */}
           {loading ? (
             <Loader2 className="h-12 w-12 text-primary mx-auto mb-4 animate-spin" />
           ) : error ? (
             <p className="text-destructive text-lg">{error}</p>
           ) : (
-            <>
-              <CardTitle className="text-3xl font-bold text-primary">{recordedClass?.title}</CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {recordedClass?.description}
-              </CardDescription>
-            </>
+            <CardTitle className="text-3xl font-bold text-primary text-left">
+              {recordedClass?.title}
+            </CardTitle>
           )}
         </CardHeader>
         <CardContent className="space-y-4">
@@ -91,16 +88,24 @@ const RecordedVideoViewerPage = () => {
             <div className="text-center text-destructive text-lg">{error}</div>
           ) : (
             recordedClass?.video_url ? (
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 Aspect Ratio */ }}>
-                <video
-                  controls
-                  src={recordedClass.video_url}
-                  className="absolute top-0 left-0 w-full h-full rounded-md bg-black"
-                  poster="/placeholder.svg" // You can add a placeholder image here
-                >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+              <>
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 Aspect Ratio */ }}>
+                  <video
+                    controls
+                    src={recordedClass.video_url}
+                    className="absolute top-0 left-0 w-full h-full rounded-md bg-black"
+                    poster="/placeholder.svg" // You can add a placeholder image here
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+                {recordedClass.description && (
+                  <div className="mt-4 p-4 bg-muted rounded-md">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Description</h3>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{recordedClass.description}</p>
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-muted-foreground text-center">No video available for this class.</p>
             )
