@@ -30,7 +30,7 @@ const DobitBoxPage = () => {
         if (profile?.role === 'admin') {
           navigate("/admin/resolve-dobits"); // Admins go to resolve page
         } else {
-          navigate("/dobit-box/submit"); // Students go to submission page
+          navigate("/dobit-box/my-doubts"); // Students go to their doubts page
         }
       } else if (!sessionLoading && !user) {
         navigate("/"); // Redirect to login if not authenticated

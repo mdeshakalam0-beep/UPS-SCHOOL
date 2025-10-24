@@ -72,6 +72,30 @@ const ResolveDobitsPage = () => {
     fetchDoubts();
   }, [fetchDoubts]);
 
+  // Realtime subscription for new doubt submissions
+  useEffect(() => {
+    const channel = supabase
+      .channel('new_doubt_submissions')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'student_doubts',
+        },
+        (payload) => {
+          const newDoubt = payload.new as StudentDoubt;
+          showSuccess(`New doubt submitted by ${newDoubt.profiles?.first_name || 'a student'}!`);
+          fetchDoubts(); // Refresh the list of doubts
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchDoubts]);
+
   const handleResolveDoubt = (doubt: StudentDoubt) => {
     setSelectedDoubt(doubt);
     setResolutionText(doubt.resolution_text || "");

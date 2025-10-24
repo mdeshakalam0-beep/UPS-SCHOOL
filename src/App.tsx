@@ -13,7 +13,7 @@ import LiveClassPage from "./pages/LiveClassPage";
 import ResultsPage from "./pages/ResultsPage";
 import NotesPdfPage from "./pages/NotesPdfPage";
 import DobitBoxPage from "./pages/DobitBoxPage"; // This will now handle redirection
-import DobitSubmissionPage from "./pages/DobitSubmissionPage"; // New student submission page
+import StudentDobitPage from "./pages/StudentDobitPage"; // New student doubts page
 import ProfilePage from "./pages/ProfilePage";
 import NoteViewerPage from "./pages/NoteViewerPage";
 import RecordedVideoViewerPage from "./pages/RecordedVideoViewerPage";
@@ -52,7 +52,7 @@ const App = () => (
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/notes-pdf" element={<NotesPdfPage />} />
             <Route path="/dobit-box" element={<DobitBoxPage />} /> {/* This will redirect based on role */}
-            <Route path="/dobit-box/submit" element={<DobitSubmissionPage />} /> {/* Student submission page */}
+            <Route path="/dobit-box/my-doubts" element={<StudentDobitPage />} /> {/* Student submission and view page */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
             <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} />
