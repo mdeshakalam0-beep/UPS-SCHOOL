@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Video, Loader2 } from "lucide-react";
+import { ArrowLeft, Video, Loader2, PlayCircle } from "lucide-react"; // Added PlayCircle icon
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
@@ -44,6 +44,10 @@ const RecordedClassPage = () => {
     fetchRecordedClasses();
   }, [fetchRecordedClasses]);
 
+  const handleViewVideo = (videoId: string) => {
+    navigate(`/view-recorded-class/${videoId}`); // Navigate to the new viewer page
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
       <div className="w-full max-w-4xl mb-6">
@@ -76,7 +80,9 @@ const RecordedClassPage = () => {
                     <p className="text-xs text-gray-500">Class: {rc.class} | Subject: {rc.subject}</p>
                   </div>
                   <div className="mt-4">
-                    <video controls src={rc.video_url} className="w-full h-auto rounded-md" />
+                    <Button variant="outline" className="w-full" onClick={() => handleViewVideo(rc.id)}>
+                      <PlayCircle className="mr-2 h-4 w-4" /> View Video
+                    </Button>
                   </div>
                 </Card>
               ))}
