@@ -118,7 +118,7 @@ const ResultsPage = () => {
       .from("student_subjective_grades")
       .select(`
         *,
-        student_subjective_submissions (
+        student_subjective_submissions!fk_submission_id (
           test_id,
           question_id,
           submitted_at,
@@ -126,7 +126,6 @@ const ResultsPage = () => {
           subjective_questions (question_text)
         )
       `)
-      // Removed the redundant filter: .eq("student_subjective_submissions.user_id", user.id)
       .order("graded_at", { ascending: false });
 
     if (subError) {
