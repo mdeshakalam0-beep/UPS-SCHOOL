@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { Loader2, User, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
+import { Label } from "@/components/ui/label"; // Import Label component
 
 interface ObjectiveTest {
   id: string;
