@@ -2,69 +2,134 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"; // Added CardDescription
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { showSuccess } from "@/utils/toast";
-import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
+import { showSuccess, showError } from "@/utils/toast";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
+import { supabase } from "@/lib/supabaseClient";
+import { useSession } from "@/components/SessionContextProvider";
+import { Loader2, User, ArrowLeft } from "lucide-react";
 
-// Mock data for objective questions
-const mockQuestions = [
-  {
-    id: "q1",
-    question: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    correctAnswer: "Paris",
-  },
-  {
-    id: "q2",
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Venus"],
-    correctAnswer: "Mars",
-  },
-  {
-    id: "q3",
-    question: "What is 7 + 8?",
-    options: ["12", "13", "14", "15"],
-    correctAnswer: "15",
-  },
-  {
-    id: "q4",
-    question: "Who wrote 'Romeo and Juliet'?",
-    options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
-    correctAnswer: "William Shakespeare",
-  },
-  {
-    id: "q5",
-    question: "What is the chemical symbol for water?",
-    options: ["O2", "H2O", "CO2", "NaCl"],
-    correctAnswer: "H2O",
-  },
-];
+interface ObjectiveTest {
+  id: string;
+  title: string;
+  description: string | null;
+  class: string;
+  duration_minutes: number;
+}
 
-const QUESTION_TIME_LIMIT = 60; // 1 minute in seconds
+interface ObjectiveQuestion {
+  id: string;
+  test_id: string;
+  question_text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: 'A' | 'B' | 'C' | 'D';
+}
 
 const ObjectiveTestPage = () => {
   const navigate = useNavigate();
+  const { user, loading: sessionLoading } = useSession();
+  const [availableTests, setAvailableTests] = useState<ObjectiveTest[]>([]);
+  const [selectedTest, setSelectedTest] = useState<ObjectiveTest | null>(null);
+  const [questions, setQuestions] = useState<ObjectiveQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
+  const [timeLeft, setTimeLeft] = useState(0); // Initialized with 0, will be set by test duration
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [testStarted, setTestStarted] = useState(false);
   const [testFinished, setTestFinished] = useState(false);
   const [showResultDialog, setShowResultDialog] = useState(false);
+  const [loadingTests, setLoadingTests] = useState(true);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [userClass, setUserClass] = useState<string | null>(null);
+  const [answersSubmitted, setAnswersSubmitted] = useState<{ [key: string]: string }>({}); // Store all answers
 
-  const currentQuestion = mockQuestions[currentQuestionIndex];
-  const totalQuestions = mockQuestions.length;
-  const progress = ((currentQuestionIndex + (testFinished ? 1 : 0)) / totalQuestions) * 100;
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length;
+  const progress = totalQuestions > 0 ? ((currentQuestionIndex + (testFinished ? 1 : 0)) / totalQuestions) * 100 : 0;
+
+  const fetchUserClassAndTests = useCallback(async () => {
+    setLoadingTests(true);
+    if (!user) {
+      setLoadingTests(false);
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('class')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error("Error fetching user profile:", profileError);
+      showError("Failed to load user profile to filter tests.");
+      setUserClass(null);
+      setLoadingTests(false);
+      return;
+    }
+
+    const currentUserClass = profile?.class;
+    setUserClass(currentUserClass);
+
+    if (!currentUserClass) {
+      console.warn("User class not found. Cannot filter objective tests.");
+      setAvailableTests([]);
+      setLoadingTests(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("objective_tests")
+      .select("*")
+      .eq("class", currentUserClass)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching objective tests:", error);
+      showError("Failed to load objective tests.");
+    } else {
+      setAvailableTests(data as ObjectiveTest[]);
+    }
+    setLoadingTests(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (!sessionLoading) {
+      fetchUserClassAndTests();
+    }
+  }, [sessionLoading, fetchUserClassAndTests]);
+
+  const fetchQuestionsForTest = useCallback(async (testId: string) => {
+    setLoadingQuestions(true);
+    const { data, error } = await supabase
+      .from("objective_questions")
+      .select("*")
+      .eq("test_id", testId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching questions:", error);
+      showError("Failed to load questions for the test.");
+      setQuestions([]);
+    } else {
+      setQuestions(data as ObjectiveQuestion[]);
+    }
+    setLoadingQuestions(false);
+  }, []);
 
   const handleAnswerSelect = (answer: string) => {
     setSelectedAnswer(answer);
+    setAnswersSubmitted((prev) => ({ ...prev, [currentQuestion.id]: answer }));
   };
 
   const evaluateAnswer = useCallback(() => {
-    if (selectedAnswer === currentQuestion.correctAnswer) {
+    if (selectedAnswer === currentQuestion.correct_option) {
       setScore((prevScore) => prevScore + 1);
     }
   }, [selectedAnswer, currentQuestion]);
@@ -75,17 +140,42 @@ const ObjectiveTestPage = () => {
 
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      setTimeLeft(QUESTION_TIME_LIMIT); // Reset timer for next question
+      setTimeLeft(selectedTest?.duration_minutes || 0); // Reset timer for next question
     } else {
       setTestFinished(true);
       setShowResultDialog(true);
       showSuccess("Test completed! Calculating results...");
+      submitTestResults();
     }
-  }, [currentQuestionIndex, totalQuestions, evaluateAnswer]);
+  }, [currentQuestionIndex, totalQuestions, evaluateAnswer, selectedTest, submitTestResults]);
+
+  const submitTestResults = useCallback(async () => {
+    if (!user || !selectedTest) {
+      showError("User or test not found for submitting results.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("student_objective_results").insert({
+        user_id: user.id,
+        test_id: selectedTest.id,
+        score: score,
+        total_questions: totalQuestions,
+      });
+
+      if (error) {
+        throw error;
+      }
+      console.log("Test results submitted successfully!");
+    } catch (error: any) {
+      console.error("Error submitting test results:", error.message);
+      showError(`Failed to submit test results: ${error.message}`);
+    }
+  }, [user, selectedTest, score, totalQuestions]);
 
   // Timer effect
   useEffect(() => {
-    if (!testStarted || testFinished) return;
+    if (!testStarted || testFinished || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
@@ -101,9 +191,26 @@ const ObjectiveTestPage = () => {
     return () => clearInterval(timer);
   }, [timeLeft, testStarted, testFinished, handleNextQuestion]);
 
-  const startTest = () => {
+  const startTest = async (test: ObjectiveTest) => {
+    setSelectedTest(test);
+    setLoadingQuestions(true);
+    await fetchQuestionsForTest(test.id);
+    setLoadingQuestions(false);
+
+    if (questions.length === 0) {
+      showError("This test has no questions yet. Please try another test.");
+      return;
+    }
+
     setTestStarted(true);
-    showSuccess("Objective Test Started! Good luck!");
+    setTimeLeft(test.duration_minutes * 60); // Convert minutes to seconds
+    setScore(0);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setAnswersSubmitted({});
+    setTestFinished(false);
+    setShowResultDialog(false);
+    showSuccess(`Objective Test "${test.title}" Started! Good luck!`);
   };
 
   const formatTime = (seconds: number) => {
@@ -117,30 +224,91 @@ const ObjectiveTestPage = () => {
     navigate("/student-dashboard");
   };
 
-  if (!testStarted) {
+  if (sessionLoading || loadingTests) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
-        <Card className="w-full max-w-md shadow-lg rounded-lg text-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <span className="ml-3 text-lg text-muted-foreground">Loading tests...</span>
+      </div>
+    );
+  }
+
+  if (!userClass) {
+    return (
+      <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+        <div className="w-full max-w-4xl mb-6">
+          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Button>
+        </div>
+        <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-primary">Objective Test</CardTitle>
-            <CardDescription>Ready to test your knowledge?</CardDescription>
+            <User className="h-12 w-12 text-primary mx-auto mb-4" />
+            <CardTitle className="text-3xl font-bold text-primary">Objective Tests</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              आपकी क्लास की जानकारी नहीं मिली।
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-lg text-muted-foreground mb-4">
-              You will have {QUESTION_TIME_LIMIT / 60} minute per question.
-            </p>
-            <Button onClick={startTest} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              Start Test
+            <p className="text-lg font-semibold text-yellow-800 mb-2">ऑब्जेक्टिव टेस्ट देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
+            <Button onClick={() => navigate("/profile")} className="bg-yellow-600 hover:bg-yellow-700 text-white">
+              प्रोफ़ाइल अपडेट करें
             </Button>
           </CardContent>
         </Card>
-        <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
+        <BottomNavigationBar />
+      </div>
+    );
+  }
+
+  if (!testStarted) {
+    return (
+      <div className="min-h-screen flex flex-col items-center bg-background p-4 pb-20 md:pb-8">
+        <div className="w-full max-w-4xl mb-6">
+          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Button>
+        </div>
+        <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-primary">Objective Tests</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              अपनी क्लास ({userClass}) के लिए उपलब्ध टेस्ट चुनें।
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {availableTests.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {availableTests.map((test) => (
+                  <Card key={test.id} className="p-4 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">{test.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{test.description}</p>
+                      <p className="text-xs text-gray-500">Class: {test.class} | Duration: {test.duration_minutes} min</p>
+                    </div>
+                    <div className="mt-4">
+                      <Button onClick={() => startTest(test)} className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loadingQuestions}>
+                        {loadingQuestions ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Start Test
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-lg text-muted-foreground">अभी आपकी क्लास के लिए कोई ऑब्जेक्टिव टेस्ट उपलब्ध नहीं है।</p>
+            )}
+          </CardContent>
+        </Card>
+        <BottomNavigationBar />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 pb-20 md:pb-8">
       <Card className="w-full max-w-2xl shadow-lg rounded-lg">
         <CardHeader>
           <div className="flex justify-between items-center mb-4">
@@ -152,18 +320,21 @@ const ObjectiveTestPage = () => {
           <Progress value={progress} className="w-full h-2" />
         </CardHeader>
         <CardContent>
-          <p className="text-lg mb-6">{currentQuestion.question}</p>
+          <p className="text-lg mb-6">{currentQuestion?.question_text}</p>
           <div className="grid grid-cols-1 gap-3">
-            {currentQuestion.options.map((option) => (
-              <Button
-                key={option}
-                variant={selectedAnswer === option ? "default" : "outline"}
-                onClick={() => handleAnswerSelect(option)}
-                className={selectedAnswer === option ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}
-              >
-                {option}
-              </Button>
-            ))}
+            {['A', 'B', 'C', 'D'].map((optionKey) => {
+              const optionText = currentQuestion?.[`option_${optionKey.toLowerCase()}` as keyof ObjectiveQuestion];
+              return (
+                <Button
+                  key={optionKey}
+                  variant={selectedAnswer === optionKey ? "default" : "outline"}
+                  onClick={() => handleAnswerSelect(optionKey)}
+                  className={selectedAnswer === optionKey ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}
+                >
+                  {optionKey}. {optionText}
+                </Button>
+              );
+            })}
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
@@ -196,7 +367,7 @@ const ObjectiveTestPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
+      <BottomNavigationBar />
     </div>
   );
 };
