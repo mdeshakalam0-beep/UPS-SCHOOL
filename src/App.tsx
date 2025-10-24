@@ -22,7 +22,7 @@ import { SessionContextProvider } from "./components/SessionContextProvider";
 
 // Admin Module Pages
 import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
-import ManageNotesPage from "././admin/ManageNotesPage";
+import ManageNotesPage from "./pages/admin/ManageNotesPage";
 import ManageObjectiveTestsPage from "./pages/admin/ManageObjectiveTestsPage";
 import ManageSubjectiveTestsPage from "./pages/admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./pages/admin/ResolveDobitsPage"; // Updated admin resolve page
