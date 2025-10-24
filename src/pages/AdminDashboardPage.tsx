@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import ManageStudentsPage from "./admin/ManageStudentsPage";
 import ManageNotesPage from "././admin/ManageNotesPage";
 import ManageObjectiveTestsPage from "./admin/ManageObjectiveTestsPage";
-import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
+import ManageSubjectiveTestsPage from "./admin/ManageManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
@@ -41,14 +41,11 @@ const AdminDashboardPage = () => {
           navigate("/student-dashboard");
         } else if (profile?.role === 'admin') {
           setUserRole('admin');
-          console.log("Admin user role confirmed:", profile.role); // Added log
         } else {
           setUserRole('student');
-          console.log("User is not admin, redirecting. Role:", profile?.role); // Added log
           navigate("/student-dashboard");
         }
       } else if (!sessionLoading && !session) {
-        console.log("No session, redirecting to login."); // Added log
         navigate("/");
       }
       setRoleLoading(false);

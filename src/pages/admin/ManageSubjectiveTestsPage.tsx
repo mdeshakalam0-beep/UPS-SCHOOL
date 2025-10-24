@@ -130,7 +130,7 @@ const ManageSubjectiveTestsPage = () => {
       .select(`
         *,
         profiles (first_name, last_name, email),
-        student_subjective_grades (grade, feedback)
+        student_subjective_grades!fk_submission_id (grade, feedback)
       `)
       .eq("test_id", testId)
       .order("submitted_at", { ascending: false });
