@@ -1,35 +1,49 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
+import { useSession } from "@/components/SessionContextProvider";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { showError } from "@/utils/toast";
 
 const DobitBoxPage = () => {
   const navigate = useNavigate();
+  const { user, loading: sessionLoading } = useSession();
+
+  useEffect(() => {
+    const checkUserRoleAndRedirect = async () => {
+      if (!sessionLoading && user) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching user profile:", error);
+          showError("Failed to fetch user role. Redirecting to dashboard.");
+          navigate("/student-dashboard"); // Fallback to student dashboard
+          return;
+        }
+
+        if (profile?.role === 'admin') {
+          navigate("/admin/resolve-dobits"); // Admins go to resolve page
+        } else {
+          navigate("/dobit-box/submit"); // Students go to submission page
+        }
+      } else if (!sessionLoading && !user) {
+        navigate("/"); // Redirect to login if not authenticated
+      }
+    };
+
+    checkUserRoleAndRedirect();
+  }, [sessionLoading, user, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
-      <div className="w-full max-w-4xl mb-6">
-        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Dashboard</span>
-        </Button>
-      </div>
-      <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-primary">Dobit Box</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-lg text-muted-foreground mb-4">
-            This page will be for submitting and resolving doubts.
-          </p>
-          <p className="text-md text-gray-500">Content coming soon!</p>
-        </CardContent>
-      </Card>
-      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <span className="ml-3 text-lg text-muted-foreground">Loading Dobit Box...</span>
     </div>
   );
 };

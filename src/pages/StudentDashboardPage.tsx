@@ -33,7 +33,7 @@ const StudentDashboardPage = () => {
     { name: "Subjective Test", icon: FileText, path: "/subjective-test" },
     { name: "Results", icon: Award, path: "/results" },
     { name: "Notes/PDF", icon: Book, path: "/notes-pdf" },
-    { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" },
+    { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" }, // Updated path
   ];
 
   const fetchActiveBanners = useCallback(async () => {
