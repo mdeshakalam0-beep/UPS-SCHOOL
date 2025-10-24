@@ -41,11 +41,14 @@ const AdminDashboardPage = () => {
           navigate("/student-dashboard");
         } else if (profile?.role === 'admin') {
           setUserRole('admin');
+          console.log("Admin user role confirmed:", profile.role); // Added log
         } else {
           setUserRole('student');
+          console.log("User is not admin, redirecting. Role:", profile?.role); // Added log
           navigate("/student-dashboard");
         }
       } else if (!sessionLoading && !session) {
+        console.log("No session, redirecting to login."); // Added log
         navigate("/");
       }
       setRoleLoading(false);

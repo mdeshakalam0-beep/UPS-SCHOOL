@@ -124,6 +124,7 @@ const ManageSubjectiveTestsPage = () => {
 
   const fetchSubmissions = useCallback(async (testId: string) => {
     setLoading(true);
+    console.log("Fetching submissions for testId:", testId); // Added log
     const { data, error } = await supabase
       .from("student_subjective_submissions")
       .select(`
@@ -137,7 +138,9 @@ const ManageSubjectiveTestsPage = () => {
     if (error) {
       console.error("Error fetching submissions:", error);
       showError("Failed to load submissions for this test.");
+      setSubmissions([]); // Ensure submissions are cleared on error
     } else {
+      console.log("Fetched submissions data:", data); // Added log
       setSubmissions(data as StudentSubmission[]);
     }
     setLoading(false);
