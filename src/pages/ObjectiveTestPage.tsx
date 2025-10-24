@@ -145,21 +145,6 @@ const ObjectiveTestPage = () => {
     }
   }, [selectedAnswer, currentQuestion]);
 
-  const handleNextQuestion = useCallback(() => {
-    evaluateAnswer();
-    setSelectedAnswer(null); // Reset selected answer for next question
-
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      // setTimeLeft(selectedTest?.duration_minutes || 0); // Removed: Timer is for the whole test, not per question
-    } else {
-      setTestFinished(true);
-      setShowResultDialog(true);
-      showSuccess("Test completed! Calculating results...");
-      submitTestResults();
-    }
-  }, [currentQuestionIndex, totalQuestions, evaluateAnswer, selectedTest, submitTestResults]);
-
   const submitTestResults = useCallback(async () => {
     if (!user || !selectedTest) {
       showError("User or test not found for submitting results.");
@@ -183,6 +168,21 @@ const ObjectiveTestPage = () => {
       showError(`Failed to submit test results: ${error.message}`);
     }
   }, [user, selectedTest, score, totalQuestions]);
+
+  const handleNextQuestion = useCallback(() => {
+    evaluateAnswer();
+    setSelectedAnswer(null); // Reset selected answer for next question
+
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+      // setTimeLeft(selectedTest?.duration_minutes || 0); // Removed: Timer is for the whole test, not per question
+    } else {
+      setTestFinished(true);
+      setShowResultDialog(true);
+      showSuccess("Test completed! Calculating results...");
+      submitTestResults();
+    }
+  }, [currentQuestionIndex, totalQuestions, evaluateAnswer, submitTestResults]); // Removed selectedTest from dependencies as it's not directly used here
 
   // Timer effect
   useEffect(() => {
