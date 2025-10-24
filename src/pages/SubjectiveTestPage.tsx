@@ -13,12 +13,14 @@ import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { Loader2, User, ArrowLeft, FileText as FileTextIcon, CalendarDays } from "lucide-react";
 import { format, isPast } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
 
 interface SubjectiveTest {
   id: string;
   title: string;
   description: string | null;
   class: string;
+  subject: string; // Added subject
   due_date: string; // ISO string
 }
 
@@ -39,6 +41,8 @@ interface StudentSubmission {
   student_subjective_grades: { grade: number | null; feedback: string | null }[];
 }
 
+const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Defined subjects
+
 const SubjectiveTestPage = () => {
   const navigate = useNavigate();
   const { user, loading: sessionLoading } = useSession();
@@ -54,6 +58,7 @@ const SubjectiveTestPage = () => {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userClass, setUserClass] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null); // New state for subject filter
 
   const fetchUserClassAndTests = useCallback(async () => {
     setLoadingTests(true);
@@ -72,6 +77,7 @@ const SubjectiveTestPage = () => {
       console.error("Error fetching user profile:", profileError);
       showError("Failed to load user profile to filter tests.");
       setUserClass(null);
+      setAvailableTests([]);
       setLoadingTests(false);
       return;
     }
@@ -86,11 +92,16 @@ const SubjectiveTestPage = () => {
       return;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("subjective_tests")
       .select("*")
-      .eq("class", currentUserClass)
-      .order("due_date", { ascending: true });
+      .eq("class", currentUserClass);
+
+    if (selectedSubject) { // Apply subject filter
+      query = query.eq("subject", selectedSubject);
+    }
+
+    const { data, error } = await query.order("due_date", { ascending: true });
 
     if (error) {
       console.error("Error fetching subjective tests:", error);
@@ -99,7 +110,7 @@ const SubjectiveTestPage = () => {
       setAvailableTests(data as SubjectiveTest[]);
     }
     setLoadingTests(false);
-  }, [user]);
+  }, [user, selectedSubject]); // Added selectedSubject to dependencies
 
   useEffect(() => {
     if (!sessionLoading) {
@@ -306,6 +317,22 @@ const SubjectiveTestPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="mb-4">
+              <Label htmlFor="subject-filter" className="sr-only">Filter by Subject</Label>
+              <Select onValueChange={(value) => setSelectedSubject(value === "all" ? null : value)} value={selectedSubject || "all"}>
+                <SelectTrigger className="w-full md:w-1/2 lg:w-1/3 mx-auto">
+                  <SelectValue placeholder="Filter by Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  {subjects.map((sub) => (
+                    <SelectItem key={sub} value={sub}>
+                      {sub}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {availableTests.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {availableTests.map((test) => {
@@ -320,7 +347,7 @@ const SubjectiveTestPage = () => {
                           <CalendarDays className="h-3 w-3 mr-1" />
                           <span>Due: {format(dueDate, "PPP HH:mm")}</span>
                         </div>
-                        <p className="text-xs text-gray-500">Class: {test.class}</p>
+                        <p className="text-xs text-gray-500">Class: {test.class} | Subject: {test.subject}</p>
                       </div>
                       <div className="mt-4">
                         <Button onClick={() => startTest(test)} className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loadingQuestions || isOverdue}>
@@ -333,7 +360,9 @@ const SubjectiveTestPage = () => {
                 })}
               </div>
             ) : (
-              <p className="text-center text-lg text-muted-foreground">अभी आपकी क्लास के लिए कोई सब्जेक्टिव टेस्ट उपलब्ध नहीं है।</p>
+              <p className="text-center text-lg text-muted-foreground">
+                {selectedSubject ? `No subjective tests found for ${selectedSubject} in your class.` : "अभी आपकी क्लास के लिए कोई सब्जेक्टिव टेस्ट उपलब्ध नहीं है।"}
+              </p>
             )}
           </CardContent>
         </Card>

@@ -23,6 +23,7 @@ interface SubjectiveTest {
   title: string;
   description: string | null;
   class: string;
+  subject: string; // Added subject
   due_date: string; // ISO string
   created_by: string | null;
   created_at: string;
@@ -46,7 +47,8 @@ interface StudentSubmission {
   student_subjective_grades: { grade: number | null; feedback: string | null }[]; // Joined grade data
 }
 
-const classes = ["1st", "2th", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Defined subjects
 
 const ManageSubjectiveTestsPage = () => {
   const { user } = useSession();
@@ -68,11 +70,13 @@ const ManageSubjectiveTestsPage = () => {
     title: string;
     description: string;
     class: string;
+    subject: string; // Added subject
     due_date: Date | undefined;
   }>({
     title: "",
     description: "",
     class: "",
+    subject: "", // Added subject
     due_date: undefined,
   });
 
@@ -159,8 +163,8 @@ const ManageSubjectiveTestsPage = () => {
 
   const handleAddTest = async () => {
     setIsSubmitting(true);
-    if (!newTestData.title || !newTestData.class || !newTestData.due_date) {
-      showError("Please fill in all required fields (Title, Class, Due Date).");
+    if (!newTestData.title || !newTestData.class || !newTestData.subject || !newTestData.due_date) {
+      showError("Please fill in all required fields (Title, Class, Subject, Due Date).");
       setIsSubmitting(false);
       return;
     }
@@ -175,6 +179,7 @@ const ManageSubjectiveTestsPage = () => {
         title: newTestData.title,
         description: newTestData.description,
         class: newTestData.class,
+        subject: newTestData.subject, // Added subject
         due_date: newTestData.due_date.toISOString(),
         created_by: user.id,
       });
@@ -200,6 +205,7 @@ const ManageSubjectiveTestsPage = () => {
       title: test.title,
       description: test.description || "",
       class: test.class,
+      subject: test.subject, // Added subject
       due_date: new Date(test.due_date),
     });
     setIsTestDialogOpen(true);
@@ -207,8 +213,8 @@ const ManageSubjectiveTestsPage = () => {
 
   const handleUpdateTest = async () => {
     setIsSubmitting(true);
-    if (!editingTest || !newTestData.title || !newTestData.class || !newTestData.due_date) {
-      showError("Please fill in all required fields (Title, Class, Due Date).");
+    if (!editingTest || !newTestData.title || !newTestData.class || !newTestData.subject || !newTestData.due_date) {
+      showError("Please fill in all required fields (Title, Class, Subject, Due Date).");
       setIsSubmitting(false);
       return;
     }
@@ -220,6 +226,7 @@ const ManageSubjectiveTestsPage = () => {
           title: newTestData.title,
           description: newTestData.description,
           class: newTestData.class,
+          subject: newTestData.subject, // Added subject
           due_date: newTestData.due_date.toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -263,7 +270,7 @@ const ManageSubjectiveTestsPage = () => {
   const handleTestDialogClose = () => {
     setIsTestDialogOpen(false);
     setEditingTest(null);
-    setNewTestData({ title: "", description: "", class: "", due_date: undefined });
+    setNewTestData({ title: "", description: "", class: "", subject: "", due_date: undefined }); // Reset subject
   };
 
   // --- Question Management Handlers ---
@@ -377,9 +384,10 @@ const ManageSubjectiveTestsPage = () => {
   };
 
   // --- Submission Management Handlers ---
-  const handleViewSubmissions = (test: SubjectiveTest) => {
+  const handleViewSubmissions = async (test: SubjectiveTest) => {
     setSelectedTestForSubmissions(test);
-    fetchSubmissions(test.id);
+    await fetchQuestions(test.id); // Fetch questions first
+    await fetchSubmissions(test.id); // Then fetch submissions
     setIsSubmissionDialogOpen(true);
   };
 
@@ -506,6 +514,23 @@ const ManageSubjectiveTestsPage = () => {
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="subject" className="text-right">
+                  Subject
+                </Label>
+                <Select onValueChange={(value) => handleTestSelectChange("subject", value)} value={newTestData.subject} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((sub) => (
+                      <SelectItem key={sub} value={sub}>
+                        {sub}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="due_date" className="text-right">
                   Due Date
                 </Label>
@@ -574,6 +599,7 @@ const ManageSubjectiveTestsPage = () => {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Class</TableHead>
+                <TableHead>Subject</TableHead> {/* Added Subject column */}
                 <TableHead>Due Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -584,6 +610,7 @@ const ManageSubjectiveTestsPage = () => {
                   <TableRow key={test.id}>
                     <TableCell className="font-medium">{test.title}</TableCell>
                     <TableCell>{test.class}</TableCell>
+                    <TableCell>{test.subject}</TableCell> {/* Display Subject */}
                     <TableCell>{format(new Date(test.due_date), "PPP HH:mm")}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => handleManageQuestions(test)} className="mr-2">
@@ -603,7 +630,7 @@ const ManageSubjectiveTestsPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-4"> {/* Adjusted colspan */}
                     No subjective tests found. Add a new test to get started!
                   </TableCell>
                 </TableRow>
