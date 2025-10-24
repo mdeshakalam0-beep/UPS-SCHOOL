@@ -1,17 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import Header from "@/components/Header";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2 } from "lucide-react";
+import { useNavigate } => "react-router-dom";
 import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
+import { supabase } from "@/lib/supabaseClient";
+import { showError } from "@/utils/toast";
+
+interface Banner {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string;
+  is_active: boolean;
+}
 
 const StudentDashboardPage = () => {
   const navigate = useNavigate();
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loadingBanners, setLoadingBanners] = useState(true);
 
   const quickAccessItems = [
     { name: "Recorded Class", icon: Video, path: "/recorded-class" },
@@ -23,39 +35,60 @@ const StudentDashboardPage = () => {
     { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" },
   ];
 
-  // Placeholder for banner images - using local paths now
-  const bannerImages = [
-    "/banner1.png",
-    "/banner2.png",
-    "/banner3.png",
-  ];
+  const fetchActiveBanners = useCallback(async () => {
+    setLoadingBanners(true);
+    const { data, error } = await supabase
+      .from("banners")
+      .select("id, title, description, image_url")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching active banners:", error);
+      showError("Failed to load banners.");
+      setBanners([]);
+    } else {
+      setBanners(data as Banner[]);
+    }
+    setLoadingBanners(false);
+  }, []);
+
+  useEffect(() => {
+    fetchActiveBanners();
+  }, [fetchActiveBanners]);
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Added padding-bottom to account for fixed bottom nav */}
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
       <Header />
-
-      {/* Removed Sign Out Button for Students from here */}
-      {/* <div className="flex justify-end mb-4 max-w-4xl mx-auto">
-        <SignOutButton />
-      </div> */}
 
       {/* Hero Banner (Auto Slider) */}
       <section className="mb-8">
-        <Carousel className="w-full max-w-4xl mx-auto">
-          <CarouselContent>
-            {bannerImages.map((src, index) => (
-              <CarouselItem key={index}>
-                <div className="p-1">
-                  <Card className="overflow-hidden rounded-lg shadow-md">
-                    <img src={src} alt={`Banner ${index + 1}`} className="w-full h-48 object-cover rounded-lg" />
-                  </Card>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+        {loadingBanners ? (
+          <div className="flex justify-center items-center h-48 bg-muted rounded-lg shadow-md">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading banners...</span>
+          </div>
+        ) : banners.length > 0 ? (
+          <Carousel className="w-full max-w-4xl mx-auto">
+            <CarouselContent>
+              {banners.map((banner) => (
+                <CarouselItem key={banner.id}>
+                  <div className="p-1">
+                    <Card className="overflow-hidden rounded-lg shadow-md">
+                      <img src={banner.image_url} alt={banner.title} className="w-full h-48 object-cover rounded-lg" />
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        ) : (
+          <div className="flex justify-center items-center h-48 bg-muted rounded-lg shadow-md">
+            <p className="text-muted-foreground">No active banners available.</p>
+          </div>
+        )}
       </section>
 
       {/* Quick Access Buttons */}
@@ -97,7 +130,7 @@ const StudentDashboardPage = () => {
       </section>
 
       <MadeWithDyad />
-      <BottomNavigationBar /> {/* Add the bottom navigation bar here */}
+      <BottomNavigationBar />
     </div>
   );
 };
