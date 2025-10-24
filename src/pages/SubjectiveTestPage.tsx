@@ -156,6 +156,12 @@ const SubjectiveTestPage = () => {
           if (sub.answer_text) {
             initialAnswers[sub.question_id] = sub.answer_text;
           }
+          // Log grade data for debugging
+          if (sub.student_subjective_grades && sub.student_subjective_grades.length > 0) {
+            console.log(`Submission ${sub.id} for question ${sub.question_id} has grade:`, sub.student_subjective_grades[0].grade);
+          } else {
+            console.log(`Submission ${sub.id} for question ${sub.question_id} has no grade yet.`);
+          }
         });
         setExistingSubmissions(submissionsMap);
         setAnswers(initialAnswers);
