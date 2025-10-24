@@ -38,7 +38,7 @@ interface StudentSubmission {
   answer_text: string | null;
   attachment_url: string | null;
   submitted_at: string;
-  student_subjective_grades: { grade: number | null; feedback: string | null }[];
+  student_subjective_grades: { id: string; grade: number | null; feedback: string | null }[]; // Added id
 }
 
 const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Defined subjects
@@ -140,7 +140,7 @@ const SubjectiveTestPage = () => {
         .from("student_subjective_submissions")
         .select(`
           *,
-          student_subjective_grades (grade, feedback)
+          student_subjective_grades!fk_submission_id (id, grade, feedback)
         `)
         .eq("test_id", testId)
         .eq("user_id", user.id);
@@ -155,12 +155,6 @@ const SubjectiveTestPage = () => {
           submissionsMap[sub.question_id] = sub;
           if (sub.answer_text) {
             initialAnswers[sub.question_id] = sub.answer_text;
-          }
-          // Log grade data for debugging
-          if (sub.student_subjective_grades && sub.student_subjective_grades.length > 0) {
-            console.log(`Submission ${sub.id} for question ${sub.question_id} has grade:`, sub.student_subjective_grades[0].grade);
-          } else {
-            console.log(`Submission ${sub.id} for question ${sub.question_id} has no grade yet.`);
           }
         });
         setExistingSubmissions(submissionsMap);
