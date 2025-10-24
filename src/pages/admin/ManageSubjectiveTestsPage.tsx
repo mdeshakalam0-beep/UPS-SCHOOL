@@ -44,7 +44,7 @@ interface StudentSubmission {
   attachment_url: string | null;
   submitted_at: string;
   profiles: { first_name: string; last_name: string | null; email: string }; // Joined profile data
-  student_subjective_grades: { grade: number | null; feedback: string | null }[]; // Joined grade data
+  student_subjective_grades: { id: string; grade: number | null; feedback: string | null }[]; // Joined grade data, added id
 }
 
 const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
@@ -124,13 +124,12 @@ const ManageSubjectiveTestsPage = () => {
 
   const fetchSubmissions = useCallback(async (testId: string) => {
     setLoading(true);
-    console.log("Fetching submissions for testId:", testId); // Added log
     const { data, error } = await supabase
       .from("student_subjective_submissions")
       .select(`
         *,
         profiles (first_name, last_name, email),
-        student_subjective_grades!fk_submission_id (grade, feedback)
+        student_subjective_grades!fk_submission_id (id, grade, feedback)
       `)
       .eq("test_id", testId)
       .order("submitted_at", { ascending: false });
@@ -140,7 +139,6 @@ const ManageSubjectiveTestsPage = () => {
       showError("Failed to load submissions for this test.");
       setSubmissions([]); // Ensure submissions are cleared on error
     } else {
-      console.log("Fetched submissions data:", data); // Added log
       setSubmissions(data as StudentSubmission[]);
     }
     setLoading(false);
@@ -434,7 +432,7 @@ const ManageSubjectiveTestsPage = () => {
             grader_id: user.id,
             graded_at: new Date().toISOString(),
           })
-          .eq("submission_id", gradingSubmission.id);
+          .eq("id", existingGrade.id); // Corrected: Use the grade's own ID for update
 
         if (error) throw error;
       } else {
