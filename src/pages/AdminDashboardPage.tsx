@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react"; // Added useEffect
+import React, { useState, useEffect } from "react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +11,12 @@ import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
+import ManageRecordedClassesPage from "./admin/ManageRecordedClassesPage"; // New import
 import SignOutButton from "@/components/SignOutButton";
-import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Loader2 } from "lucide-react"; // Added Loader2
-import { useSession } from "@/components/SessionContextProvider"; // Import useSession
+import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Video, Loader2 } from "lucide-react"; // Added Video icon
+import { useSession } from "@/components/SessionContextProvider";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient"; // Import supabase
+import { supabase } from "@/lib/supabaseClient";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
@@ -35,17 +36,15 @@ const AdminDashboardPage = () => {
 
         if (error) {
           console.error("Error fetching admin profile:", error);
-          // If profile not found or error, assume not admin
           setUserRole(null);
-          navigate("/student-dashboard"); // Redirect to student dashboard or login
+          navigate("/student-dashboard");
         } else if (profile?.role === 'admin') {
           setUserRole('admin');
         } else {
           setUserRole('student');
-          navigate("/student-dashboard"); // Redirect if not admin
+          navigate("/student-dashboard");
         }
       } else if (!sessionLoading && !session) {
-        // If no session, redirect to login
         navigate("/");
       }
       setRoleLoading(false);
@@ -64,9 +63,7 @@ const AdminDashboardPage = () => {
   }
 
   if (userRole !== 'admin') {
-    // This case should ideally be caught by the useEffect redirect,
-    // but as a fallback, we can render nothing or a message.
-    return null; 
+    return null;
   }
 
   return (
@@ -82,7 +79,7 @@ const AdminDashboardPage = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1 h-auto p-1 mb-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mb-4"> {/* Adjusted grid-cols */}
           <TabsTrigger value="students" className="flex flex-col items-center justify-center p-2 h-auto">
             <Users className="h-5 w-5 mb-1" />
             <span className="text-xs sm:text-sm text-center">Students</span>
@@ -90,6 +87,10 @@ const AdminDashboardPage = () => {
           <TabsTrigger value="notes" className="flex flex-col items-center justify-center p-2 h-auto">
             <Book className="h-5 w-5 mb-1" />
             <span className="text-xs sm:text-sm text-center">Notes/PDFs</span>
+          </TabsTrigger>
+          <TabsTrigger value="recorded-classes" className="flex flex-col items-center justify-center p-2 h-auto"> {/* New Tab */}
+            <Video className="h-5 w-5 mb-1" />
+            <span className="text-xs sm:text-sm text-center">Recorded Classes</span>
           </TabsTrigger>
           <TabsTrigger value="objective-tests" className="flex flex-col items-center justify-center p-2 h-auto">
             <ClipboardCheck className="h-5 w-5 mb-1" />
@@ -118,6 +119,9 @@ const AdminDashboardPage = () => {
         </TabsContent>
         <TabsContent value="notes" className="mt-4">
           <ManageNotesPage />
+        </TabsContent>
+        <TabsContent value="recorded-classes" className="mt-4"> {/* New Content */}
+          <ManageRecordedClassesPage />
         </TabsContent>
         <TabsContent value="objective-tests" className="mt-4">
           <ManageObjectiveTestsPage />

@@ -13,10 +13,10 @@ import LiveClassPage from "./pages/LiveClassPage";
 import ResultsPage from "./pages/ResultsPage";
 import NotesPdfPage from "./pages/NotesPdfPage";
 import DobitBoxPage from "./pages/DobitBoxPage";
-import ProfilePage from "./pages/ProfilePage"; // Import ProfilePage
-import NoteViewerPage from "./pages/NoteViewerPage"; // New import for NoteViewerPage
+import ProfilePage from "./pages/ProfilePage";
+import NoteViewerPage from "./pages/NoteViewerPage";
 import NotFound from "./pages/NotFound";
-import { SessionContextProvider } from "./components/SessionContextProvider"; // Import SessionContextProvider
+import { SessionContextProvider } from "./components/SessionContextProvider";
 
 // Admin Module Pages
 import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
@@ -26,6 +26,7 @@ import ManageSubjectiveTestsPage from "./pages/admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./pages/admin/ResolveDobitsPage";
 import ViewResultsPage from "./pages/admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./pages/admin/ManageBannersNotificationsPage";
+import ManageRecordedClassesPage from "./pages/admin/ManageRecordedClassesPage"; // New import
 
 
 const queryClient = new QueryClient();
@@ -36,7 +37,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SessionContextProvider> {/* Wrap routes with SessionContextProvider */}
+        <SessionContextProvider>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/student-dashboard" element={<StudentDashboardPage />} />
@@ -49,11 +50,12 @@ const App = () => (
             <Route path="/notes-pdf" element={<NotesPdfPage />} />
             <Route path="/dobit-box" element={<DobitBoxPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/view-note/:noteId" element={<NoteViewerPage />} /> {/* New Note Viewer Route */}
+            <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
 
-            {/* Admin Module Routes (can be nested under /admin-dashboard if desired, but for now direct routes) */}
+            {/* Admin Module Routes */}
             <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
             <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
+            <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} /> {/* New Admin Route */}
             <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
             <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
             <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} />
