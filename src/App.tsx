@@ -15,7 +15,7 @@ import NotesPdfPage from "./pages/NotesPdfPage";
 import DobitBoxPage from "./pages/DobitBoxPage";
 import ProfilePage from "./pages/ProfilePage";
 import NoteViewerPage from "./pages/NoteViewerPage";
-import RecordedVideoViewerPage from "./pages/RecordedVideoViewerPage"; // New import
+import RecordedVideoViewerPage from "./pages/RecordedVideoViewerPage";
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 
@@ -28,6 +28,7 @@ import ResolveDobitsPage from "./pages/admin/ResolveDobitsPage";
 import ViewResultsPage from "./pages/admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./pages/admin/ManageBannersNotificationsPage";
 import ManageRecordedClassesPage from "./pages/admin/ManageRecordedClassesPage";
+import ManageLiveClassesPage from "./pages/admin/ManageLiveClassesPage"; // New import
 
 
 const queryClient = new QueryClient();
@@ -52,12 +53,13 @@ const App = () => (
             <Route path="/dobit-box" element={<DobitBoxPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
-            <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} /> {/* New Route */}
+            <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} />
 
             {/* Admin Module Routes */}
             <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
             <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
             <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} />
+            <Route path="/admin/manage-live-classes" element={<ManageLiveClassesPage />} /> {/* New Admin Route */}
             <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
             <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
             <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} />

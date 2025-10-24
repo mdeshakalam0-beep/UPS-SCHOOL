@@ -11,9 +11,10 @@ import ManageSubjectiveTestsPage from "./admin/ManageSubjectiveTestsPage";
 import ResolveDobitsPage from "./admin/ResolveDobitsPage";
 import ViewResultsPage from "./admin/ViewResultsPage";
 import ManageBannersNotificationsPage from "./admin/ManageBannersNotificationsPage";
-import ManageRecordedClassesPage from "./admin/ManageRecordedClassesPage"; // New import
+import ManageRecordedClassesPage from "./admin/ManageRecordedClassesPage";
+import ManageLiveClassesPage from "./admin/ManageLiveClassesPage"; // New import for Live Classes
 import SignOutButton from "@/components/SignOutButton";
-import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Video, Loader2 } from "lucide-react"; // Added Video icon
+import { Users, Book, ClipboardCheck, FileText, MessageSquare, Award, Image, Video, MonitorPlay, Loader2 } from "lucide-react"; // Added MonitorPlay icon
 import { useSession } from "@/components/SessionContextProvider";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
@@ -79,7 +80,7 @@ const AdminDashboardPage = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-6xl">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mb-4"> {/* Adjusted grid-cols */}
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-1 h-auto p-1 mb-4"> {/* Adjusted grid-cols to 9 */}
           <TabsTrigger value="students" className="flex flex-col items-center justify-center p-2 h-auto">
             <Users className="h-5 w-5 mb-1" />
             <span className="text-xs sm:text-sm text-center">Students</span>
@@ -88,9 +89,13 @@ const AdminDashboardPage = () => {
             <Book className="h-5 w-5 mb-1" />
             <span className="text-xs sm:text-sm text-center">Notes/PDFs</span>
           </TabsTrigger>
-          <TabsTrigger value="recorded-classes" className="flex flex-col items-center justify-center p-2 h-auto"> {/* New Tab */}
+          <TabsTrigger value="recorded-classes" className="flex flex-col items-center justify-center p-2 h-auto">
             <Video className="h-5 w-5 mb-1" />
             <span className="text-xs sm:text-sm text-center">Recorded Classes</span>
+          </TabsTrigger>
+          <TabsTrigger value="live-classes" className="flex flex-col items-center justify-center p-2 h-auto"> {/* New Tab */}
+            <MonitorPlay className="h-5 w-5 mb-1" />
+            <span className="text-xs sm:text-sm text-center">Live Classes</span>
           </TabsTrigger>
           <TabsTrigger value="objective-tests" className="flex flex-col items-center justify-center p-2 h-auto">
             <ClipboardCheck className="h-5 w-5 mb-1" />
@@ -120,8 +125,11 @@ const AdminDashboardPage = () => {
         <TabsContent value="notes" className="mt-4">
           <ManageNotesPage />
         </TabsContent>
-        <TabsContent value="recorded-classes" className="mt-4"> {/* New Content */}
+        <TabsContent value="recorded-classes" className="mt-4">
           <ManageRecordedClassesPage />
+        </TabsContent>
+        <TabsContent value="live-classes" className="mt-4"> {/* New Content */}
+          <ManageLiveClassesPage />
         </TabsContent>
         <TabsContent value="objective-tests" className="mt-4">
           <ManageObjectiveTestsPage />
