@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { supabase } from '@/lib/supabaseClient';
 import { useSession } from '@/components/SessionContextProvider';
 import { showError, showSuccess } from '@/utils/toast';
-// Removed: import { Toaster } from 'sonner'; // Using sonner for toasts
 
 interface Notification {
   id: string;
@@ -18,7 +17,7 @@ interface Notification {
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  markAsRead: (id: string) => void;
+  markAllAsRead: () => void; // Changed to markAllAsRead
   clearAllNotifications: () => void;
 }
 
@@ -36,9 +35,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (audioRef.current) {
       audioRef.current.src = soundUrl;
       audioRef.current.play().catch(e => console.error("Error playing sound:", e));
-    } else {
-      const audio = new Audio(soundUrl);
-      audio.play().catch(e => console.error("Error playing sound:", e));
     }
   }, []);
 
@@ -95,7 +91,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setNotifications(data || []);
       // For simplicity, initially all fetched notifications are considered "read"
       // A more robust system would involve a separate 'read_notifications' table
-      setUnreadCount(0);
+      setUnreadCount(0); // On initial load, assume no unread count
     }
   }, [user, fetchUserClass]);
 
@@ -120,7 +116,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
             if (isGlobal || isTargetedToUserClass) {
               setNotifications((prev) => [newNotification, ...prev].slice(0, 20)); // Keep only recent 20
-              setUnreadCount((prev) => prev + 1);
+              setUnreadCount((prev) => prev + 1); // Increment unread count for new notification
               showSuccess(newNotification.title, { description: newNotification.message });
               if (newNotification.sound_url) {
                 playNotificationSound(newNotification.sound_url);
@@ -140,11 +136,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [sessionLoading, user, fetchInitialNotifications, playNotificationSound, fetchUserClass]);
 
-  const markAsRead = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+  const markAllAsRead = useCallback(() => {
+    setUnreadCount(0); // Reset unread count when notifications are viewed
   }, []);
 
   const clearAllNotifications = useCallback(() => {
@@ -159,9 +152,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, clearAllNotifications }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAllAsRead, clearAllNotifications }}>
       {children}
-      {/* Removed: <Toaster /> */} {/* Sonner Toaster for displaying notifications */}
     </NotificationContext.Provider>
   );
 };

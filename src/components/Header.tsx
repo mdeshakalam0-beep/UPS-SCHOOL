@@ -10,7 +10,7 @@ import { useNotifications } from "@/components/NotificationProvider"; // Import 
 import { formatDistanceToNow } from "date-fns";
 
 const Header = () => {
-  const { notifications, unreadCount, clearAllNotifications } = useNotifications();
+  const { notifications, unreadCount, markAllAsRead, clearAllNotifications } = useNotifications();
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg mb-6">
@@ -25,7 +25,11 @@ const Header = () => {
 
       {/* Right: Notification Icon */}
       <div className="relative">
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={(open) => {
+          if (open) {
+            markAllAsRead(); // Mark all as read when dropdown is opened
+          }
+        }}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-6 w-6 text-gray-600" />
