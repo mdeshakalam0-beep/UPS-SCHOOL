@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
@@ -52,6 +52,7 @@ const App = () => (
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/notes-pdf" element={<NotesPdfPage />} />
             <Route path="/dobit-box" element={<DobitBoxPage />} /> {/* This will redirect based on role */}
+            <Route path="/dobit-box/submit" element={<Navigate to="/dobit-box/my-doubts" replace />} /> {/* Redirect old /submit route */}
             <Route path="/dobit-box/my-doubts" element={<StudentDobitPage />} /> {/* Student submission and view page */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
