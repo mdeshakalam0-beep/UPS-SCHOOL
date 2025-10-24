@@ -126,7 +126,7 @@ const ResultsPage = () => {
           subjective_questions (question_text)
         )
       `)
-      .eq("student_subjective_submissions.user_id", user.id) // Filter by user_id in submissions
+      // Removed the redundant filter: .eq("student_subjective_submissions.user_id", user.id)
       .order("graded_at", { ascending: false });
 
     if (subError) {
