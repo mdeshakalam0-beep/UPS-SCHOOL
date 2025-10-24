@@ -19,6 +19,7 @@ interface ObjectiveTest {
   title: string;
   description: string | null;
   class: string;
+  subject: string; // Added subject
   duration_minutes: number;
   created_by: string | null;
   created_at: string;
@@ -36,6 +37,7 @@ interface ObjectiveQuestion {
 }
 
 const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
+const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Added subjects
 const correctOptions = ["A", "B", "C", "D"];
 
 const ManageObjectiveTestsPage = () => {
@@ -52,11 +54,13 @@ const ManageObjectiveTestsPage = () => {
     title: string;
     description: string;
     class: string;
+    subject: string; // Added subject
     duration_minutes: number | undefined;
   }>({
     title: "",
     description: "",
     class: "",
+    subject: "", // Added subject
     duration_minutes: undefined,
   });
 
@@ -128,8 +132,8 @@ const ManageObjectiveTestsPage = () => {
 
   const handleAddTest = async () => {
     setIsSubmitting(true);
-    if (!newTestData.title || !newTestData.class || newTestData.duration_minutes === undefined) {
-      showError("Please fill in all required fields (Title, Class, Duration).");
+    if (!newTestData.title || !newTestData.class || !newTestData.subject || newTestData.duration_minutes === undefined) {
+      showError("Please fill in all required fields (Title, Class, Subject, Duration).");
       setIsSubmitting(false);
       return;
     }
@@ -144,6 +148,7 @@ const ManageObjectiveTestsPage = () => {
         title: newTestData.title,
         description: newTestData.description,
         class: newTestData.class,
+        subject: newTestData.subject, // Added subject
         duration_minutes: newTestData.duration_minutes,
         created_by: user.id,
       });
@@ -169,6 +174,7 @@ const ManageObjectiveTestsPage = () => {
       title: test.title,
       description: test.description || "",
       class: test.class,
+      subject: test.subject, // Added subject
       duration_minutes: test.duration_minutes,
     });
     setIsTestDialogOpen(true);
@@ -176,8 +182,8 @@ const ManageObjectiveTestsPage = () => {
 
   const handleUpdateTest = async () => {
     setIsSubmitting(true);
-    if (!editingTest || !newTestData.title || !newTestData.class || newTestData.duration_minutes === undefined) {
-      showError("Please fill in all required fields (Title, Class, Duration).");
+    if (!editingTest || !newTestData.title || !newTestData.class || !newTestData.subject || newTestData.duration_minutes === undefined) {
+      showError("Please fill in all required fields (Title, Class, Subject, Duration).");
       setIsSubmitting(false);
       return;
     }
@@ -189,6 +195,7 @@ const ManageObjectiveTestsPage = () => {
           title: newTestData.title,
           description: newTestData.description,
           class: newTestData.class,
+          subject: newTestData.subject, // Added subject
           duration_minutes: newTestData.duration_minutes,
           updated_at: new Date().toISOString(),
         })
@@ -232,7 +239,7 @@ const ManageObjectiveTestsPage = () => {
   const handleTestDialogClose = () => {
     setIsTestDialogOpen(false);
     setEditingTest(null);
-    setNewTestData({ title: "", description: "", class: "", duration_minutes: undefined });
+    setNewTestData({ title: "", description: "", class: "", subject: "", duration_minutes: undefined }); // Reset subject
   };
 
   // --- Question Management Handlers ---
@@ -410,6 +417,23 @@ const ManageObjectiveTestsPage = () => {
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="subject" className="text-right">
+                  Subject
+                </Label>
+                <Select onValueChange={(value) => handleTestSelectChange("subject", value)} value={newTestData.subject} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((sub) => (
+                      <SelectItem key={sub} value={sub}>
+                        {sub}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="duration_minutes" className="text-right">
                   Duration (min)
                 </Label>
@@ -438,6 +462,7 @@ const ManageObjectiveTestsPage = () => {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Class</TableHead>
+                <TableHead>Subject</TableHead> {/* Added Subject column */}
                 <TableHead>Duration (min)</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -448,6 +473,7 @@ const ManageObjectiveTestsPage = () => {
                   <TableRow key={test.id}>
                     <TableCell className="font-medium">{test.title}</TableCell>
                     <TableCell>{test.class}</TableCell>
+                    <TableCell>{test.subject}</TableCell> {/* Display Subject */}
                     <TableCell>{test.duration_minutes}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => handleManageQuestions(test)} className="mr-2">
@@ -464,7 +490,7 @@ const ManageObjectiveTestsPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-4"> {/* Adjusted colspan */}
                     No objective tests found. Add a new test to get started!
                   </TableCell>
                 </TableRow>

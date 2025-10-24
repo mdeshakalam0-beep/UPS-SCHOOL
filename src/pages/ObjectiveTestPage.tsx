@@ -11,12 +11,14 @@ import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { Loader2, User, ArrowLeft } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
 
 interface ObjectiveTest {
   id: string;
   title: string;
   description: string | null;
   class: string;
+  subject: string; // Added subject
   duration_minutes: number;
 }
 
@@ -30,6 +32,8 @@ interface ObjectiveQuestion {
   option_d: string;
   correct_option: 'A' | 'B' | 'C' | 'D';
 }
+
+const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Added subjects
 
 const ObjectiveTestPage = () => {
   const navigate = useNavigate();
@@ -47,6 +51,7 @@ const ObjectiveTestPage = () => {
   const [loadingTests, setLoadingTests] = useState(true);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [userClass, setUserClass] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null); // New state for subject filter
   const [answersSubmitted, setAnswersSubmitted] = useState<{ [key: string]: string }>({}); // Store all answers
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -70,6 +75,7 @@ const ObjectiveTestPage = () => {
       console.error("Error fetching user profile:", profileError);
       showError("Failed to load user profile to filter tests.");
       setUserClass(null);
+      setAvailableTests([]);
       setLoadingTests(false);
       return;
     }
@@ -84,11 +90,16 @@ const ObjectiveTestPage = () => {
       return;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("objective_tests")
       .select("*")
-      .eq("class", currentUserClass)
-      .order("created_at", { ascending: false });
+      .eq("class", currentUserClass);
+
+    if (selectedSubject) {
+      query = query.eq("subject", selectedSubject);
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching objective tests:", error);
@@ -97,7 +108,7 @@ const ObjectiveTestPage = () => {
       setAvailableTests(data as ObjectiveTest[]);
     }
     setLoadingTests(false);
-  }, [user]);
+  }, [user, selectedSubject]); // Added selectedSubject to dependencies
 
   useEffect(() => {
     if (!sessionLoading) {
@@ -140,7 +151,7 @@ const ObjectiveTestPage = () => {
 
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      setTimeLeft(selectedTest?.duration_minutes || 0); // Reset timer for next question
+      // setTimeLeft(selectedTest?.duration_minutes || 0); // Removed: Timer is for the whole test, not per question
     } else {
       setTestFinished(true);
       setShowResultDialog(true);
@@ -181,7 +192,11 @@ const ObjectiveTestPage = () => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timer);
-          handleNextQuestion(); // Auto-advance on timer end
+          // If time runs out, automatically submit the test
+          setTestFinished(true);
+          setShowResultDialog(true);
+          showError("Time's up! Submitting your test...");
+          submitTestResults();
           return 0;
         }
         return prevTime - 1;
@@ -189,7 +204,7 @@ const ObjectiveTestPage = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, testStarted, testFinished, handleNextQuestion]);
+  }, [timeLeft, testStarted, testFinished, submitTestResults]);
 
   const startTest = async (test: ObjectiveTest) => {
     setSelectedTest(test);
@@ -279,6 +294,22 @@ const ObjectiveTestPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="mb-4">
+              <Label htmlFor="subject-filter" className="sr-only">Filter by Subject</Label>
+              <Select onValueChange={(value) => setSelectedSubject(value === "all" ? null : value)} value={selectedSubject || "all"}>
+                <SelectTrigger className="w-full md:w-1/2 lg:w-1/3 mx-auto">
+                  <SelectValue placeholder="Filter by Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  {subjects.map((sub) => (
+                    <SelectItem key={sub} value={sub}>
+                      {sub}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {availableTests.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {availableTests.map((test) => (
@@ -286,7 +317,7 @@ const ObjectiveTestPage = () => {
                     <div>
                       <h3 className="text-lg font-semibold text-foreground">{test.title}</h3>
                       <p className="text-sm text-muted-foreground mb-2">{test.description}</p>
-                      <p className="text-xs text-gray-500">Class: {test.class} | Duration: {test.duration_minutes} min</p>
+                      <p className="text-xs text-gray-500">Class: {test.class} | Subject: {test.subject} | Duration: {test.duration_minutes} min</p>
                     </div>
                     <div className="mt-4">
                       <Button onClick={() => startTest(test)} className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loadingQuestions}>
@@ -298,7 +329,9 @@ const ObjectiveTestPage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-lg text-muted-foreground">अभी आपकी क्लास के लिए कोई ऑब्जेक्टिव टेस्ट उपलब्ध नहीं है।</p>
+              <p className="text-center text-lg text-muted-foreground">
+                {selectedSubject ? `No objective tests found for ${selectedSubject} in your class.` : "अभी आपकी क्लास के लिए कोई ऑब्जेक्टिव टेस्ट उपलब्ध नहीं है।"}
+              </p>
             )}
           </CardContent>
         </Card>
