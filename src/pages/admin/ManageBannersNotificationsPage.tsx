@@ -12,6 +12,8 @@ import { Image, BellRing, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-rea
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
+import ManageNotificationsTab from "./ManageNotificationsTab"; // Import the new component
 
 interface Banner {
   id: string;
@@ -39,6 +41,7 @@ const ManageBannersNotificationsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("banners"); // New state for active tab
 
   const fetchBanners = useCallback(async () => {
     setLoading(true);
@@ -232,118 +235,137 @@ const ManageBannersNotificationsPage = () => {
     <Card className="w-full shadow-lg rounded-lg">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-2xl font-bold text-primary">Manage Banners & Notifications</CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { setEditingBanner(null); setNewBannerData({ title: "", description: "", imageFile: null, is_active: true }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Banner
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{editingBanner ? "Edit Banner" : "Add New Banner"}</DialogTitle>
-              <CardDescription>{editingBanner ? "Update banner details." : "Enter new banner information."}</CardDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="title" className="text-right">
-                  Title
-                </Label>
-                <Input id="title" value={newBannerData.title} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea id="description" value={newBannerData.description} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="imageFile" className="text-right">
-                  Upload Image
-                </Label>
-                <Input id="imageFile" type="file" accept="image/*" onChange={handleInputChange} className="col-span-3" />
-                {editingBanner?.image_url && !newBannerData.imageFile && (
-                  <div className="col-span-4 text-sm text-muted-foreground text-right">
-                    Current: <a href={editingBanner.image_url} target="_blank" rel="noopener noreferrer" className="underline">{editingBanner.image_url.split('/').pop()}</a>
-                  </div>
-                )}
-                {newBannerData.imageFile && (
-                  <div className="col-span-4 text-sm text-muted-foreground text-right">
-                    Selected: {newBannerData.imageFile.name}
-                  </div>
-                )}
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="is_active" className="text-right">
-                  Active
-                </Label>
-                <input
-                  id="is_active"
-                  type="checkbox"
-                  checked={newBannerData.is_active}
-                  onChange={handleInputChange}
-                  className="col-span-3 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Cancel</Button>
-              <Button onClick={editingBanner ? handleUpdateBanner : handleAddBanner} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {editingBanner ? "Save Changes" : "Add Banner"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading banners...</span>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Image</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {banners.length > 0 ? (
-                banners.map((banner) => (
-                  <TableRow key={banner.id}>
-                    <TableCell className="font-medium">{banner.title}</TableCell>
-                    <TableCell>{banner.description}</TableCell>
-                    <TableCell>
-                      <a href={banner.image_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        {banner.image_url.split('/').pop()}
-                      </a>
-                    </TableCell>
-                    <TableCell>{banner.is_active ? "Yes" : "No"}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditBanner(banner)} className="mr-2">
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteBanner(banner)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="banners" className="flex items-center justify-center">
+              <Image className="h-4 w-4 mr-2" /> Banners
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center justify-center">
+              <BellRing className="h-4 w-4 mr-2" /> Notifications
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="banners" className="mt-0 space-y-4">
+            <div className="flex justify-end mb-4">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { setEditingBanner(null); setNewBannerData({ title: "", description: "", imageFile: null, is_active: true }); }} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Banner
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>{editingBanner ? "Edit Banner" : "Add New Banner"}</DialogTitle>
+                    <CardDescription>{editingBanner ? "Update banner details." : "Enter new banner information."}</CardDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="title" className="text-right">
+                        Title
+                      </Label>
+                      <Input id="title" value={newBannerData.title} onChange={handleInputChange} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="description" className="text-right">
+                        Description
+                      </Label>
+                      <Textarea id="description" value={newBannerData.description} onChange={handleInputChange} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="imageFile" className="text-right">
+                        Upload Image
+                      </Label>
+                      <Input id="imageFile" type="file" accept="image/*" onChange={handleInputChange} className="col-span-3" />
+                      {editingBanner?.image_url && !newBannerData.imageFile && (
+                        <div className="col-span-4 text-sm text-muted-foreground text-right">
+                          Current: <a href={editingBanner.image_url} target="_blank" rel="noopener noreferrer" className="underline">{editingBanner.image_url.split('/').pop()}</a>
+                        </div>
+                      )}
+                      {newBannerData.imageFile && (
+                        <div className="col-span-4 text-sm text-muted-foreground text-right">
+                          Selected: {newBannerData.imageFile.name}
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="is_active" className="text-right">
+                        Active
+                      </Label>
+                      <input
+                        id="is_active"
+                        type="checkbox"
+                        checked={newBannerData.is_active}
+                        onChange={handleInputChange}
+                        className="col-span-3 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Cancel</Button>
+                    <Button onClick={editingBanner ? handleUpdateBanner : handleAddBanner} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {editingBanner ? "Save Changes" : "Add Banner"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading banners...</span>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Image</TableHead>
+                    <TableHead>Active</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-4">
-                    No banners found. Add a new banner to get started!
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
+                </TableHeader>
+                <TableBody>
+                  {banners.length > 0 ? (
+                    banners.map((banner) => (
+                      <TableRow key={banner.id}>
+                        <TableCell className="font-medium">{banner.title}</TableCell>
+                        <TableCell>{banner.description}</TableCell>
+                        <TableCell>
+                          <a href={banner.image_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            {banner.image_url.split('/').pop()}
+                          </a>
+                        </TableCell>
+                        <TableCell>{banner.is_active ? "Yes" : "No"}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditBanner(banner)} className="mr-2">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteBanner(banner)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-4">
+                        No banners found. Add a new banner to get started!
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-0 space-y-4">
+            <ManageNotificationsTab />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
