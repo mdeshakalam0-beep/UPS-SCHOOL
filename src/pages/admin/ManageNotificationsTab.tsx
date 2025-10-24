@@ -119,9 +119,9 @@ const ManageNotificationsTab = () => {
     }
   };
 
-  const handleSelectChange = (id: string, value: string) => {
+  const handleSelectChange = (id: string, value: string | null) => { // Allow null for value
     if (id === "class_target") {
-      setNewNotificationData((prev) => ({ ...prev, class_target: value }));
+      setNewNotificationData((prev) => ({ ...prev, class_target: value || "All Classes" }));
     } else if (id === "selectedSoundUrl") {
       setNewNotificationData((prev) => ({ ...prev, selectedSoundUrl: value, soundFile: null })); // Clear sound file if URL selected
       if (value) {
@@ -334,12 +334,12 @@ const ManageNotificationsTab = () => {
                 <Label htmlFor="selectedSoundUrl" className="text-right">
                   Select Sound
                 </Label>
-                <Select onValueChange={(value) => handleSelectChange("selectedSoundUrl", value)} value={newNotificationData.selectedSoundUrl || ""} >
+                <Select onValueChange={(value) => handleSelectChange("selectedSoundUrl", value)} value={newNotificationData.selectedSoundUrl || "null"} >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select a sound (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Sound</SelectItem>
+                    <SelectItem value="null">No Sound</SelectItem> {/* Changed value to "null" */}
                     {availableSounds.map((sound) => (
                       <SelectItem key={sound.name} value={sound.url}>
                         {sound.name.replace(/\.[^/.]+$/, "")} {/* Remove file extension */}
