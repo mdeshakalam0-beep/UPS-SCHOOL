@@ -14,6 +14,7 @@ import ResultsPage from "./pages/ResultsPage";
 import NotesPdfPage from "./pages/NotesPdfPage";
 import DobitBoxPage from "./pages/DobitBoxPage";
 import ProfilePage from "./pages/ProfilePage"; // Import ProfilePage
+import NoteViewerPage from "./pages/NoteViewerPage"; // New import for NoteViewerPage
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./components/SessionContextProvider"; // Import SessionContextProvider
 
@@ -47,7 +48,8 @@ const App = () => (
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/notes-pdf" element={<NotesPdfPage />} />
             <Route path="/dobit-box" element={<DobitBoxPage />} />
-            <Route path="/profile" element={<ProfilePage />} /> {/* New Profile Route */}
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/view-note/:noteId" element={<NoteViewerPage />} /> {/* New Note Viewer Route */}
 
             {/* Admin Module Routes (can be nested under /admin-dashboard if desired, but for now direct routes) */}
             <Route path="/admin/manage-students" element={<ManageStudentsPage />} />

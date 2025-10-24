@@ -40,6 +40,10 @@ const NotesPdfPage = () => {
     fetchNotes();
   }, [fetchNotes]);
 
+  const handleViewNote = (noteId: string) => {
+    navigate(`/view-note/${noteId}`); // Navigate to the new viewer page
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8"> {/* Adjusted padding-bottom */}
       <div className="w-full max-w-4xl mb-6 flex justify-between items-center">
@@ -72,11 +76,9 @@ const NotesPdfPage = () => {
                     <p className="text-xs text-gray-500">Class: {note.class} | Subject: {note.subject}</p>
                   </div>
                   <div className="mt-4">
-                    <a href={note.file_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" className="w-full">
-                        <Download className="mr-2 h-4 w-4" /> Download / View
-                      </Button>
-                    </a>
+                    <Button variant="outline" className="w-full" onClick={() => handleViewNote(note.id)}>
+                      <BookOpen className="mr-2 h-4 w-4" /> View Note
+                    </Button>
                   </div>
                 </Card>
               ))}
