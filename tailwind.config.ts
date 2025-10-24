@@ -28,7 +28,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))", // Royal Blue
+          DEFAULT: "hsl(var(--primary))", // Vibrant Blue-Purple
           foreground: "hsl(var(--primary-foreground))", // White
         },
         secondary: {
@@ -67,7 +67,7 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
+        lg: "var(--radius)", // Use the new radius variable
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },

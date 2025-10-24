@@ -39,40 +39,43 @@ const App = () => (
     <TooltipProvider>
       {/* Removed Radix UI Toaster */}
       <Sonner /> {/* Keep only the sonner Toaster */}
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}> {/* Added v7_relativeSplatPath flag here */}
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <SessionContextProvider>
-          <NotificationProvider> {/* Wrap with NotificationProvider */}
-            <Routes>
-              <Route path="/" element={<LoginPage />} />
-              <Route path="/student-dashboard" element={<StudentDashboardPage />} />
-              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-              <Route path="/objective-test" element={<ObjectiveTestPage />} />
-              <Route path="/subjective-test" element={<SubjectiveTestPage />} />
-              <Route path="/recorded-class" element={<RecordedClassPage />} />
-              <Route path="/live-class" element={<LiveClassPage />} />
-              <Route path="/results" element={<ResultsPage />} />
-              <Route path="/notes-pdf" element={<NotesPdfPage />} />
-              <Route path="/dobit-box" element={<DobitBoxPage />} /> {/* This will redirect based on role */}
-              <Route path="/dobit-box/submit" element={<Navigate to="/dobit-box/my-doubts" replace />} /> {/* Redirect old /submit route */}
-              <Route path="/dobit-box/my-doubts" element={<StudentDobitPage />} /> {/* Student submission and view page */}
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
-              <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} />
+          <NotificationProvider>
+            {/* Added a wrapper div for the premium background */}
+            <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+              <Routes>
+                <Route path="/" element={<LoginPage />} />
+                <Route path="/student-dashboard" element={<StudentDashboardPage />} />
+                <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+                <Route path="/objective-test" element={<ObjectiveTestPage />} />
+                <Route path="/subjective-test" element={<SubjectiveTestPage />} />
+                <Route path="/recorded-class" element={<RecordedClassPage />} />
+                <Route path="/live-class" element={<LiveClassPage />} />
+                <Route path="/results" element={<ResultsPage />} />
+                <Route path="/notes-pdf" element={<NotesPdfPage />} />
+                <Route path="/dobit-box" element={<DobitBoxPage />} /> {/* This will redirect based on role */}
+                <Route path="/dobit-box/submit" element={<Navigate to="/dobit-box/my-doubts" replace />} /> {/* Redirect old /submit route */}
+                <Route path="/dobit-box/my-doubts" element={<StudentDobitPage />} /> {/* Student submission and view page */}
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
+                <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} />
 
-              {/* Admin Module Routes */}
-              <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
-              <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
-              <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} />
-              <Route path="/admin/manage-live-classes" element={<ManageLiveClassesPage />} />
-              <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
-              <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
-              <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} /> {/* Admin resolve page */}
-              <Route path="/admin/view-results" element={<ViewResultsPage />} />
-              <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
+                {/* Admin Module Routes */}
+                <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
+                <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
+                <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} />
+                <Route path="/admin/manage-live-classes" element={<ManageLiveClassesPage />} />
+                <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
+                <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
+                <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} /> {/* Admin resolve page */}
+                <Route path="/admin/view-results" element={<ViewResultsPage />} />
+                <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
 
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </NotificationProvider>
         </SessionContextProvider>
       </BrowserRouter>

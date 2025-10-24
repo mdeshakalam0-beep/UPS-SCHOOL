@@ -90,9 +90,7 @@ const ManageStudentsPage = () => {
       // For simplicity here, we'll assume the admin is adding a profile for an *existing* user
       // or that the user will sign up separately.
       // A more robust solution would involve creating the user via admin API or inviting them.
-      // For now, we'll simulate adding a profile directly, assuming the user ID exists or will be linked.
-      // This part needs careful consideration for a real-world scenario.
-      // For this exercise, we'll focus on managing existing profiles or profiles created via signup.
+      // For now, we'll focus on managing existing profiles or profiles created via signup.
       showError("Adding new students directly from this panel is not yet supported. Please ask the student to sign up first.");
       setIsSubmitting(false);
       return;

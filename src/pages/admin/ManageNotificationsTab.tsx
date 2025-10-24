@@ -361,7 +361,7 @@ const ManageNotificationsTab = () => {
                 {newNotificationData.selectedSoundUrl && !newNotificationData.soundFile && (
                   <div className="col-span-4 text-sm text-muted-foreground text-right">
                     Current: <a href={newNotificationData.selectedSoundUrl} target="_blank" rel="noopener noreferrer" className="underline">{newNotificationData.selectedSoundUrl.split('/').pop()}</a>
-                    <Button variant="ghost" size="icon" onClick={() => playSoundPreview(newNotificationData.selectedSoundUrl || '')} className="ml-2">
+                    <Button variant="ghost" size="icon" onClick={() => playSoundPreview(newNotificationData.selectedSoundUrl || '')} className="ml-1 h-6 w-6">
                       <Volume2 className="h-4 w-4" />
                     </Button>
                   </div>

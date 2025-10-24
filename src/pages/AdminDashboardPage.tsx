@@ -68,7 +68,7 @@ const AdminDashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-6xl shadow-lg rounded-lg mb-6">
         <CardHeader className="text-center">
           <h1 className="text-4xl font-bold mb-2 text-primary">Admin Dashboard</h1>

@@ -710,86 +710,64 @@ const ManageSubjectiveTestsPage = () => {
               <DialogTitle>Submissions for "{selectedTestForSubmissions?.title}"</DialogTitle>
               <CardDescription>View and grade student submissions.</CardDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {loading ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading submissions...</span>
+            {selectedDoubt && (
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label className="font-semibold">Student:</Label>
+                  <p>{selectedDoubt.profiles?.first_name} {selectedDoubt.profiles?.last_name} ({selectedDoubt.profiles?.email})</p>
                 </div>
-              ) : submissions.length > 0 ? (
-                <div className="space-y-4">
-                  {submissions.map((submission) => (
-                    <Card key={submission.id} className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="font-semibold text-lg">{submission.profiles.first_name} {submission.profiles.last_name}</p>
-                          <p className="text-sm text-muted-foreground">{submission.profiles.email}</p>
-                          <p className="text-xs text-gray-500">Submitted: {format(new Date(submission.submitted_at), "PPP HH:mm")}</p>
-                        </div>
-                        <div>
-                          {submission.student_subjective_grades?.[0]?.grade !== null && submission.student_subjective_grades?.[0]?.grade !== undefined ? (
-                            <span className="text-xl font-bold text-green-600">Grade: {submission.student_subjective_grades[0].grade}</span>
-                          ) : (
-                            <span className="text-md font-medium text-yellow-600">Not Graded</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="mt-3 border-t pt-3">
-                        <h4 className="font-medium mb-2">Question: {questions.find(q => q.id === submission.question_id)?.question_text}</h4>
-                        <p className="text-muted-foreground whitespace-pre-wrap mb-2">Answer: {submission.answer_text || "No text answer provided."}</p>
-                        {submission.attachment_url && (
-                          <p className="text-sm text-blue-600 hover:underline">
-                            Attachment: <a href={submission.attachment_url} target="_blank" rel="noopener noreferrer">{submission.attachment_url.split('/').pop()}</a>
-                          </p>
-                        )}
-                      </div>
-                      <div className="mt-4 flex justify-end">
-                        <Button variant="outline" onClick={() => handleGradeSubmission(submission)}>
-                          {submission.student_subjective_grades?.[0] ? "Edit Grade" : "Grade"}
-                        </Button>
-                      </div>
-
-                      {/* Grading Form (conditionally rendered) */}
-                      {gradingSubmission?.id === submission.id && (
-                        <Card className="mt-4 p-4 bg-muted">
-                          <CardTitle className="text-md mb-3">Grade Submission</CardTitle>
-                          <div className="grid gap-3">
-                            <Label htmlFor="grade">Grade (out of 100)</Label>
-                            <Input
-                              id="grade"
-                              type="number"
-                              value={gradeData.grade || ""}
-                              onChange={handleGradeInputChange}
-                              min={0}
-                              max={100}
-                              required
-                            />
-                            <Label htmlFor="feedback">Feedback</Label>
-                            <Textarea
-                              id="feedback"
-                              value={gradeData.feedback}
-                              onChange={handleGradeInputChange}
-                              rows={3}
-                            />
-                          </div>
-                          <div className="flex justify-end space-x-2 mt-4">
-                            <Button variant="outline" onClick={() => setGradingSubmission(null)} disabled={isSubmitting}>Cancel</Button>
-                            <Button onClick={handleSaveGrade} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
-                              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                              Save Grade
-                            </Button>
-                          </div>
-                        </Card>
-                      )}
-                    </Card>
-                  ))}
+                <div className="space-y-2">
+                  <Label className="font-semibold">Class / Subject:</Label>
+                  <p>{selectedDoubt.class} / {selectedDoubt.subject}</p>
                 </div>
-              ) : (
-                <p className="text-center text-muted-foreground">No submissions found for this test yet.</p>
-              )}
-            </div>
+                <div className="space-y-2">
+                  <Label className="font-semibold">Submitted On:</Label>
+                  <p>{format(new Date(selectedDoubt.created_at), "PPP HH:mm")}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-semibold">Doubt Description:</Label>
+                  <Card className="p-3 bg-muted/50">
+                    <p className="whitespace-pre-wrap">{selectedDoubt.description}</p>
+                  </Card>
+                </div>
+                {selectedDoubt.attachment_url && (
+                  <div className="space-y-2">
+                    <Label className="font-semibold">Attachment:</Label>
+                    <p>
+                      <a href={selectedDoubt.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        View Attachment ({selectedDoubt.attachment_url.split('/').pop()})
+                      </a>
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="resolutionText" className="font-semibold">Resolution:</Label>
+                  <Textarea
+                    id="resolutionText"
+                    value={resolutionText}
+                    onChange={(e) => setResolutionText(e.target.value)}
+                    rows={6}
+                    placeholder="Type your resolution here..."
+                    className="w-full"
+                    disabled={selectedDoubt.status === 'resolved'}
+                  />
+                </div>
+                {selectedDoubt.status === 'resolved' && (
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p>Resolved by: {selectedDoubt.resolved_by_profile?.first_name} {selectedDoubt.resolved_by_profile?.last_name}</p>
+                    <p>Resolved at: {selectedDoubt.resolved_at ? format(new Date(selectedDoubt.resolved_at), "PPP HH:mm") : "N/A"}</p>
+                  </div>
+                )}
+              </div>
+            )}
             <DialogFooter>
-              <Button variant="outline" onClick={handleSubmissionDialogClose}>Close</Button>
+              <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Close</Button>
+              {selectedDoubt?.status === 'pending' && (
+                <Button onClick={handleSaveResolution} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                  Mark as Resolved
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

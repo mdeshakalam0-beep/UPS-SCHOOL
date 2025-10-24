@@ -154,7 +154,7 @@ const StudentDashboardPage = () => {
   }, [fetchActiveBanners, fetchTopStudents]); // Removed topStudents from dependencies to prevent potential infinite loop
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
       <Header />
 
       {/* Hero Banner (Auto Slider) */}
