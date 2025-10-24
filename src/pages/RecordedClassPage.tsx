@@ -4,11 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Video, Loader2, PlayCircle } from "lucide-react"; // Added PlayCircle icon
+import { ArrowLeft, Video, Loader2, PlayCircle, User } from "lucide-react"; // Added User icon
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
-import { useSession } from "@/components/SessionContextProvider"; // Import useSession
+import { useSession } from "@/components/SessionContextProvider";
 
 interface RecordedClass {
   id: string;
@@ -22,7 +22,7 @@ interface RecordedClass {
 
 const RecordedClassPage = () => {
   const navigate = useNavigate();
-  const { user, loading: sessionLoading } = useSession(); // Get user and session loading state
+  const { user, loading: sessionLoading } = useSession();
   const [recordedClasses, setRecordedClasses] = useState<RecordedClass[]>([]);
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [userClass, setUserClass] = useState<string | null>(null);
@@ -41,9 +41,10 @@ const RecordedClassPage = () => {
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
+    if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means "no rows found" for single()
       console.error("Error fetching user profile:", profileError);
       showError("Failed to load user profile to filter classes.");
+      setUserClass(null); // Ensure userClass is null on error
       setLoadingClasses(false);
       return;
     }
@@ -53,7 +54,7 @@ const RecordedClassPage = () => {
 
     if (!currentUserClass) {
       console.warn("User class not found. Cannot filter recorded classes.");
-      setRecordedClasses([]);
+      setRecordedClasses([]); // Clear classes if user class is not found
       setLoadingClasses(false);
       return;
     }
@@ -62,7 +63,7 @@ const RecordedClassPage = () => {
     const { data, error } = await supabase
       .from("recorded_classes")
       .select("*")
-      .eq("class", currentUserClass) // Filter by user's class
+      .eq("class", currentUserClass)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -81,7 +82,7 @@ const RecordedClassPage = () => {
   }, [sessionLoading, fetchUserClassAndRecordedClasses]);
 
   const handleViewVideo = (videoId: string) => {
-    navigate(`/view-recorded-class/${videoId}`); // Navigate to the new viewer page
+    navigate(`/view-recorded-class/${videoId}`);
   };
 
   if (sessionLoading || loadingClasses) {
@@ -110,7 +111,16 @@ const RecordedClassPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {recordedClasses.length > 0 ? (
+          {!userClass ? (
+            <div className="text-center p-6 bg-yellow-50 border border-yellow-200 rounded-md">
+              <User className="h-10 w-10 text-yellow-600 mx-auto mb-3" />
+              <p className="text-lg font-semibold text-yellow-800 mb-2">आपकी क्लास की जानकारी नहीं मिली।</p>
+              <p className="text-muted-foreground mb-4">रिकॉर्डेड क्लास देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
+              <Button onClick={() => navigate("/profile")} className="bg-yellow-600 hover:bg-yellow-700 text-white">
+                प्रोफ़ाइल अपडेट करें
+              </Button>
+            </div>
+          ) : recordedClasses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {recordedClasses.map((rc) => (
                 <Card key={rc.id} className="p-4 flex flex-col justify-between">
