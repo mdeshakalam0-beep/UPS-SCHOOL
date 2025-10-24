@@ -7,10 +7,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Corrected import statement
-import BottomNavigationBar from "@/components/BottomNavigationBar"; // Import BottomNavigationBar
+import { useNavigate } from "react-router-dom";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
+import Autoplay from "embla-carousel-autoplay"; // Import Autoplay
 
 interface Banner {
   id: string;
@@ -69,7 +70,15 @@ const StudentDashboardPage = () => {
             <span className="ml-2 text-muted-foreground">Loading banners...</span>
           </div>
         ) : banners.length > 0 ? (
-          <Carousel className="w-full max-w-4xl mx-auto">
+          <Carousel
+            plugins={[
+              Autoplay({
+                delay: 4000, // 4 seconds
+                stopOnInteraction: false, // Continue autoplay even after user interaction
+              }),
+            ]}
+            className="w-full max-w-4xl mx-auto"
+          >
             <CarouselContent>
               {banners.map((banner) => (
                 <CarouselItem key={banner.id}>
