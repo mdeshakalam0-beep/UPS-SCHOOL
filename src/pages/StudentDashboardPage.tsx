@@ -203,7 +203,7 @@ const StudentDashboardPage = () => {
             <Button
               key={item.name}
               variant="outline"
-              className="flex flex-col items-center justify-center p-4 h-auto text-center space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="flex flex-col items-center justify-center p-3 h-auto text-center space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200"
               onClick={() => navigate(item.path)}
             >
               <item.icon className="h-8 w-8 text-primary" />
