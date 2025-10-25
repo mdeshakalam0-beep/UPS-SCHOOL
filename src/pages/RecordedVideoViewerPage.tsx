@@ -67,7 +67,7 @@ const RecordedVideoViewerPage = () => {
         </Button>
       </div>
       <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
-        <CardHeader className="text-center pb-4"> {/* Reduced padding-bottom */}
+        <CardHeader className="text-center pb-4">
           {loading ? (
             <Loader2 className="h-12 w-12 text-primary mx-auto mb-4 animate-spin" />
           ) : error ? (
@@ -89,7 +89,8 @@ const RecordedVideoViewerPage = () => {
           ) : (
             recordedClass?.video_url ? (
               <>
-                <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 Aspect Ratio */ }}>
+                {/* Added max-w-[1280px] and mx-auto to constrain the video size */}
+                <div className="relative w-full max-w-[1280px] mx-auto" style={{ paddingBottom: '56.25%' /* 16:9 Aspect Ratio */ }}>
                   <video
                     controls
                     src={recordedClass.video_url}
