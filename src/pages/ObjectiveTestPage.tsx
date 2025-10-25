@@ -268,13 +268,13 @@ const ObjectiveTestPage = () => {
           </Button>
         </div>
         <Card className="w-full max-w-4xl shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
             <User className="h-16 w-16 mx-auto mb-4 bg-white/20 p-3 rounded-full" />
             <CardTitle className="text-3xl font-bold">Objective Tests</CardTitle>
             <CardDescription className="text-blue-100 mt-2">
               आपकी क्लास की जानकारी नहीं मिली।
             </CardDescription>
-          </CardHeader>
+          </CardHeader> {/* Correctly closed CardHeader */}
           <CardContent className="p-8 text-center">
             <p className="text-lg font-semibold text-slate-700 mb-6">ऑब्जेक्टिव टेस्ट देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
             <Button onClick={() => navigate("/profile")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md hover:shadow-lg transition-shadow">
@@ -312,7 +312,6 @@ const ObjectiveTestPage = () => {
                     <SelectValue placeholder="Filter by Subject" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Subjects</SelectItem>
                     {subjects.map((sub) => (
                       <SelectItem key={sub} value={sub}>
                         {sub}
