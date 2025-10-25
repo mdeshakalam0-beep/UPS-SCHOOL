@@ -282,49 +282,50 @@ const StudentDashboardPage = () => {
                     <CarouselItem key={student.id} className="pl-2 md:basis-1/2 lg:basis-1/3"> {/* Adjusted basis */}
                       <div className="p-1">
                         <Card className="shadow-lg bg-white rounded-xl overflow-hidden border-0">
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3"> {/* Reduced padding */}
-                            <div className="relative mx-auto mb-2 w-20 h-20"> {/* Smaller avatar container */}
-                              <Avatar className="w-20 h-20 mx-auto border-3 border-white shadow-lg"> {/* Smaller avatar */}
-                                <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold"> {/* Smaller text */}
-                                  {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-10 w-10" />} {/* Smaller icon */}
-                                </AvatarFallback>
-                              </Avatar>
-                              <Badge className={`absolute -bottom-1 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md ${ /* Smaller badge */
-                                index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
-                                index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
-                                'bg-gradient-to-r from-orange-400 to-orange-500'
-                              }`}>
-                                {index === 0 ? <Trophy className="h-3 w-3 mr-1" /> : <Star className="h-3 w-3 mr-1" />}
-                                #{index + 1}
-                              </Badge>
-                            </div>
-                            <CardTitle className="text-base font-semibold text-slate-800 text-center"> {/* Smaller title */}
-                              {student.first_name} {student.last_name}
-                            </CardTitle>
-                          </div>
-                          <CardContent className="pt-3 pb-2 px-3"> {/* Reduced padding */}
-                            <div className="space-y-1"> {/* Reduced space */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Class:</span> {/* Smaller text */}
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs"> {/* Smaller badge text */}
-                                  {student.class || "N/A"}
+                          <div className="flex p-3 items-start"> {/* Use flex and items-start for top alignment */}
+                            {/* Left Section: Avatar and Name */}
+                            <div className="flex flex-col items-center pr-3 border-r border-slate-200">
+                              <div className="relative mb-1 w-20 h-20">
+                                <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                                  <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
+                                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold">
+                                    {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-10 w-10" />}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <Badge className={`absolute -bottom-1 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md ${
+                                  index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
+                                  index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
+                                  'bg-gradient-to-r from-orange-400 to-orange-500'
+                                }`}>
+                                  {index === 0 ? <Trophy className="h-3 w-3 mr-1" /> : <Star className="h-3 w-3 mr-1" />}
+                                  #{index + 1}
                                 </Badge>
                               </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Score:</span> {/* Smaller text */}
-                                <span className="font-bold text-blue-600 text-sm">{student.latest_score} / {student.total_questions}</span> {/* Display score as X/Y */}
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Time:</span> {/* New line for time */}
-                                <span className="text-xs font-medium text-slate-800">{formatTimeTaken(student.time_taken_seconds)}</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Test:</span> {/* Smaller text */}
-                                <span className="text-xs font-medium text-slate-800 truncate max-w-[80px]">{student.test_title}</span> {/* Smaller text */}
+                              <p className="text-sm font-semibold text-slate-800 text-center mt-1">
+                                {student.first_name} {student.last_name}
+                              </p>
+                            </div>
+
+                            {/* Right Section: Other Details */}
+                            <div className="flex-1 pl-3 pt-1">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-slate-600">Class:</span>
+                                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
+                                    {student.class || "N/A"}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-slate-600">Time:</span>
+                                  <span className="text-xs font-medium text-slate-800">{formatTimeTaken(student.time_taken_seconds)}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-slate-600">Test:</span>
+                                  <span className="text-xs font-medium text-slate-800 truncate max-w-[80px]">{student.test_title}</span>
+                                </div>
                               </div>
                             </div>
-                          </CardContent>
+                          </div>
                         </Card>
                       </div>
                     </CarouselItem>
