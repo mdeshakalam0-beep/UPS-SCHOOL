@@ -1,27 +1,76 @@
 "use client";
 
-import React from "react";
-import { Bell, School, XCircle } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Bell, School, XCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotifications } from "@/components/NotificationProvider"; // Import useNotifications
+import { useNotifications } from "@/components/NotificationProvider";
 import { formatDistanceToNow } from "date-fns";
+import { supabase } from "@/lib/supabaseClient"; // Import supabase client
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Import Avatar components
+
+interface SchoolSettings {
+  school_name: string;
+  school_logo_url: string | null;
+}
 
 const Header = () => {
   const { notifications, unreadCount, markAllAsRead, clearAllNotifications } = useNotifications();
+  const [schoolSettings, setSchoolSettings] = useState<SchoolSettings | null>(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  const fetchSchoolSettings = useCallback(async () => {
+    setLoadingSettings(true);
+    const { data, error } = await supabase
+      .from("school_settings")
+      .select("school_name, school_logo_url")
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 means "no rows found"
+      console.error("Error fetching school settings:", error);
+      // Fallback to default values
+      setSchoolSettings({ school_name: "UPS PUBLISH SCHOOL", school_logo_url: null });
+    } else if (data) {
+      setSchoolSettings(data as SchoolSettings);
+    } else {
+      // No settings found, use default
+      setSchoolSettings({ school_name: "UPS PUBLISH SCHOOL", school_logo_url: null });
+    }
+    setLoadingSettings(false);
+  }, []);
+
+  useEffect(() => {
+    fetchSchoolSettings();
+  }, [fetchSchoolSettings]);
 
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg mb-6">
-      {/* Left: School Logo */}
+      {/* Left: School Logo and Name */}
       <div className="flex items-center space-x-2">
-        <School className="h-8 w-8 text-primary" />
-        <span className="text-xl font-bold text-primary hidden sm:block">UPS PUBLISH SCHOOL</span>
+        {loadingSettings ? (
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        ) : (
+          <>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={schoolSettings?.school_logo_url || undefined} alt="School Logo" />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                <School className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xl font-bold text-primary hidden sm:block">
+              {schoolSettings?.school_name || "UPS PUBLISH SCHOOL"}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Center: School Name (visible on smaller screens) */}
-      <h1 className="text-2xl font-bold text-primary sm:hidden">UPS PUBLISH SCHOOL</h1>
+      <h1 className="text-2xl font-bold text-primary sm:hidden">
+        {loadingSettings ? <Loader2 className="h-6 w-6 animate-spin text-primary" /> : schoolSettings?.school_name || "UPS PUBLISH SCHOOL"}
+      </h1>
 
       {/* Right: Notification Icon */}
       <div className="relative">

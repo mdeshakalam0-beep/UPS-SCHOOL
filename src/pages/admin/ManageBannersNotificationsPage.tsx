@@ -8,12 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { showSuccess, showError } from "@/utils/toast";
-import { Image, BellRing, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
+import { Image, BellRing, Pencil, Trash2, PlusCircle, Loader2, School } from "lucide-react"; // Added School icon
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
-import ManageNotificationsTab from "./ManageNotificationsTab"; // Import the new component
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ManageNotificationsTab from "./ManageNotificationsTab";
+import ManageSchoolSettingsTab from "./ManageSchoolSettingsTab"; // Import the new component
 
 interface Banner {
   id: string;
@@ -41,18 +42,19 @@ const ManageBannersNotificationsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState("banners"); // New state for active tab
+  const [activeTab, setActiveTab] = useState("banners");
 
   const fetchBanners = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("banners")
-      .select("*")
+      .select("id, title, description, image_url, is_active")
       .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching banners:", error);
       showError("Failed to load banners.");
+      setBanners([]);
     } else {
       setBanners(data as Banner[]);
     }
@@ -238,12 +240,15 @@ const ManageBannersNotificationsPage = () => {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4"> {/* Adjusted grid-cols to 3 */}
             <TabsTrigger value="banners" className="flex items-center justify-center">
               <Image className="h-4 w-4 mr-2" /> Banners
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center justify-center">
               <BellRing className="h-4 w-4 mr-2" /> Notifications
+            </TabsTrigger>
+            <TabsTrigger value="school-settings" className="flex items-center justify-center"> {/* New Tab */}
+              <School className="h-4 w-4 mr-2" /> School Settings
             </TabsTrigger>
           </TabsList>
 
@@ -364,6 +369,10 @@ const ManageBannersNotificationsPage = () => {
 
           <TabsContent value="notifications" className="mt-0 space-y-4">
             <ManageNotificationsTab />
+          </TabsContent>
+
+          <TabsContent value="school-settings" className="mt-0 space-y-4"> {/* New Tab Content */}
+            <ManageSchoolSettingsTab />
           </TabsContent>
         </Tabs>
       </CardContent>
