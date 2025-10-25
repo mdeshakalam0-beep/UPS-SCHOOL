@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { showSuccess, showError } from "@/utils/toast";
-import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { Loader2, User, ArrowLeft, FileText as FileTextIcon, CalendarDays } from "lucide-react";
@@ -243,6 +242,7 @@ const SubjectiveTestPage = () => {
     } catch (error: any) {
       console.error("Error submitting test:", error.message);
       showError(`Failed to submit test: ${error.message}`);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -273,7 +273,7 @@ const SubjectiveTestPage = () => {
 
   if (!userClass) {
     return (
-      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+      <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
         <div className="w-full max-w-4xl mb-6">
           <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
             <ArrowLeft className="h-4 w-4" />
@@ -295,14 +295,13 @@ const SubjectiveTestPage = () => {
             </Button>
           </CardContent>
         </Card>
-        <BottomNavigationBar />
       </div>
     );
   }
 
   if (!testStarted) {
     return (
-      <div className="min-h-screen flex flex-col items-center p-4 pb-20 md:pb-8">
+      <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
         <div className="w-full max-w-4xl mb-6">
           <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
             <ArrowLeft className="h-4 w-4" />
@@ -366,13 +365,12 @@ const SubjectiveTestPage = () => {
             )}
           </CardContent>
         </Card>
-        <BottomNavigationBar />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+    <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
       <Card className="w-full max-w-3xl shadow-lg rounded-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary">{selectedTest?.title}</CardTitle>
@@ -452,7 +450,6 @@ const SubjectiveTestPage = () => {
           </Button>
         </CardFooter>
       </Card>
-      <BottomNavigationBar />
     </div>
   );
 };

@@ -3,8 +3,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import StudentDashboardPage from "./pages/StudentDashboardPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ObjectiveTestPage from "./pages/ObjectiveTestPage";
 import SubjectiveTestPage from "./pages/SubjectiveTestPage";
 import RecordedClassPage from "./pages/RecordedClassPage";
@@ -19,8 +17,10 @@ import RecordedVideoViewerPage from "./pages/RecordedVideoViewerPage";
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import { NotificationProvider } from "./components/NotificationProvider"; // Import NotificationProvider
+import StudentLayout from "./components/StudentLayout"; // Import the new StudentLayout
 
 // Admin Module Pages
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
 import ManageNotesPage from "./pages/admin/ManageNotesPage";
 import ManageObjectiveTestsPage from "./pages/admin/ManageObjectiveTestsPage";
@@ -42,12 +42,13 @@ const App = () => (
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <SessionContextProvider>
           <NotificationProvider>
-            {/* Added a wrapper div for the premium background */}
-            <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-              <Routes>
-                <Route path="/" element={<LoginPage />} />
+            {/* The main content wrapper div is now in StudentLayout */}
+            <Routes>
+              <Route path="/" element={<LoginPage />} />
+              
+              {/* Student Routes wrapped in StudentLayout */}
+              <Route element={<StudentLayout />}>
                 <Route path="/student-dashboard" element={<StudentDashboardPage />} />
-                <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
                 <Route path="/objective-test" element={<ObjectiveTestPage />} />
                 <Route path="/subjective-test" element={<SubjectiveTestPage />} />
                 <Route path="/recorded-class" element={<RecordedClassPage />} />
@@ -60,22 +61,23 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/view-note/:noteId" element={<NoteViewerPage />} />
                 <Route path="/view-recorded-class/:videoId" element={<RecordedVideoViewerPage />} />
+              </Route>
 
-                {/* Admin Module Routes */}
-                <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
-                <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
-                <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} />
-                <Route path="/admin/manage-live-classes" element={<ManageLiveClassesPage />} />
-                <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
-                <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
-                <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} /> {/* Admin resolve page */}
-                <Route path="/admin/view-results" element={<ViewResultsPage />} />
-                <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
+              {/* Admin Module Routes (AdminDashboardPage already includes SignOutButton and its own layout) */}
+              <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+              <Route path="/admin/manage-students" element={<ManageStudentsPage />} />
+              <Route path="/admin/manage-notes" element={<ManageNotesPage />} />
+              <Route path="/admin/manage-recorded-classes" element={<ManageRecordedClassesPage />} />
+              <Route path="/admin/manage-live-classes" element={<ManageLiveClassesPage />} />
+              <Route path="/admin/manage-objective-tests" element={<ManageObjectiveTestsPage />} />
+              <Route path="/admin/manage-subjective-tests" element={<ManageSubjectiveTestsPage />} />
+              <Route path="/admin/resolve-dobits" element={<ResolveDobitsPage />} /> {/* Admin resolve page */}
+              <Route path="/admin/view-results" element={<ViewResultsPage />} />
+              <Route path="/admin/manage-banners-notifications" element={<ManageBannersNotificationsPage />} />
 
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </NotificationProvider>
         </SessionContextProvider>
       </BrowserRouter>
