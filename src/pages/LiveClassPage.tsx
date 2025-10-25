@@ -11,6 +11,8 @@ import { showError } from "@/utils/toast";
 import { useSession } from "@/components/SessionContextProvider";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"; // Import Dialog components
+import LiveStreamViewer from "@/components/LiveStreamViewer"; // Import LiveStreamViewer
 
 interface LiveClass {
   id: string;
@@ -21,7 +23,8 @@ interface LiveClass {
   scheduled_at: string; // ISO string
   duration_minutes: number | null;
   created_at: string;
-  is_active: boolean; // Added is_active
+  is_active: boolean;
+  platform: string; // Added platform
 }
 
 const LiveClassPage = () => {
@@ -30,6 +33,8 @@ const LiveClassPage = () => {
   const [liveClasses, setLiveClasses] = useState<LiveClass[]>([]);
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [userClass, setUserClass] = useState<string | null>(null);
+  const [isStreamDialogOpen, setIsStreamDialogOpen] = useState(false);
+  const [selectedStream, setSelectedStream] = useState<LiveClass | null>(null);
 
   const fetchUserClassAndLiveClasses = useCallback(async () => {
     setLoadingClasses(true);
@@ -86,8 +91,9 @@ const LiveClassPage = () => {
     }
   }, [sessionLoading, fetchUserClassAndLiveClasses]);
 
-  const handleJoinClass = (meetingLink: string) => {
-    window.open(meetingLink, "_blank");
+  const handleOpenStream = (liveClass: LiveClass) => {
+    setSelectedStream(liveClass);
+    setIsStreamDialogOpen(true);
   };
 
   const getClassStatusBadge = (classTime: Date, isActive: boolean) => {
@@ -187,7 +193,7 @@ const LiveClassPage = () => {
                             ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
                             : "bg-blue-600 hover:bg-blue-700 text-white"
                         }`}
-                        onClick={() => handleJoinClass(lc.meeting_link)}
+                        onClick={() => handleOpenStream(lc)} // Changed to open stream in dialog
                         disabled={isJoinDisabled}
                       >
                         {isClassOver ? (
@@ -221,6 +227,28 @@ const LiveClassPage = () => {
         </CardContent>
       </Card>
       <BottomNavigationBar />
+
+      {/* Live Stream Viewer Dialog */}
+      <Dialog open={isStreamDialogOpen} onOpenChange={setIsStreamDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] h-[80vh] p-0"> {/* Adjusted size for video */}
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>{selectedStream?.title}</DialogTitle>
+            <CardDescription>{selectedStream?.description}</CardDescription>
+          </DialogHeader>
+          <div className="flex-1 p-4 pt-0">
+            {selectedStream && (
+              <LiveStreamViewer
+                meetingLink={selectedStream.meeting_link}
+                platform={selectedStream.platform}
+                title={selectedStream.title}
+              />
+            )}
+          </div>
+          <DialogFooter className="p-4 pt-0">
+            <Button variant="outline" onClick={() => setIsStreamDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

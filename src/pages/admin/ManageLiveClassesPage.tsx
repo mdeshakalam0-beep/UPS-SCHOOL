@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch"; // Import Switch component
 import { Badge } from "@/components/ui/badge"; // Import Badge component
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select
 
 interface LiveClass {
   id: string;
@@ -29,7 +30,8 @@ interface LiveClass {
   duration_minutes: number | null;
   uploaded_by: string | null;
   created_at: string;
-  is_active: boolean; // Added is_active
+  is_active: boolean;
+  platform: string; // Added platform
 }
 
 const ManageLiveClassesPage = () => {
@@ -44,7 +46,8 @@ const ManageLiveClassesPage = () => {
     class: string;
     scheduled_at: Date | undefined;
     duration_minutes: number | undefined;
-    is_active: boolean; // Added is_active
+    is_active: boolean;
+    platform: string; // Added platform
   }>({
     title: "",
     description: "",
@@ -52,7 +55,8 @@ const ManageLiveClassesPage = () => {
     class: "",
     scheduled_at: undefined,
     duration_minutes: undefined,
-    is_active: true, // Default to active
+    is_active: true,
+    platform: "Other", // Default platform
   });
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +83,10 @@ const ManageLiveClassesPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
+    setNewClassData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
     setNewClassData((prev) => ({ ...prev, [id]: value }));
   };
 
@@ -112,7 +120,8 @@ const ManageLiveClassesPage = () => {
         scheduled_at: newClassData.scheduled_at.toISOString(),
         duration_minutes: newClassData.duration_minutes,
         uploaded_by: user.id,
-        is_active: newClassData.is_active, // Include is_active
+        is_active: newClassData.is_active,
+        platform: newClassData.platform, // Include platform
       });
 
       if (error) {
@@ -139,7 +148,8 @@ const ManageLiveClassesPage = () => {
       class: liveClass.class,
       scheduled_at: new Date(liveClass.scheduled_at),
       duration_minutes: liveClass.duration_minutes || undefined,
-      is_active: liveClass.is_active, // Set is_active for editing
+      is_active: liveClass.is_active,
+      platform: liveClass.platform, // Set platform for editing
     });
     setIsDialogOpen(true);
   };
@@ -163,7 +173,8 @@ const ManageLiveClassesPage = () => {
           scheduled_at: newClassData.scheduled_at.toISOString(),
           duration_minutes: newClassData.duration_minutes,
           updated_at: new Date().toISOString(),
-          is_active: newClassData.is_active, // Update is_active
+          is_active: newClassData.is_active,
+          platform: newClassData.platform, // Update platform
         })
         .eq("id", editingClass.id);
 
@@ -212,7 +223,8 @@ const ManageLiveClassesPage = () => {
       class: "",
       scheduled_at: undefined,
       duration_minutes: undefined,
-      is_active: true, // Reset to default active
+      is_active: true,
+      platform: "Other", // Reset to default
     });
   };
 
@@ -245,8 +257,23 @@ const ManageLiveClassesPage = () => {
                 <Textarea id="description" value={newClassData.description} onChange={handleInputChange} className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="platform" className="text-right">
+                  Platform
+                </Label>
+                <Select onValueChange={(value) => handleSelectChange("platform", value)} value={newClassData.platform} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YouTube">YouTube</SelectItem>
+                    <SelectItem value="Zoom">Zoom</SelectItem>
+                    <SelectItem value="Other">Other (Embeddable URL)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="meeting_link" className="text-right">
-                  Meeting Link
+                  Meeting Link/URL
                 </Label>
                 <Input id="meeting_link" value={newClassData.meeting_link} onChange={handleInputChange} className="col-span-3" required />
               </div>
@@ -348,9 +375,10 @@ const ManageLiveClassesPage = () => {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Class</TableHead>
+                <TableHead>Platform</TableHead> {/* Added Platform column */}
                 <TableHead>Scheduled At</TableHead>
                 <TableHead>Duration (min)</TableHead>
-                <TableHead>Status</TableHead> {/* Added Status column */}
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -360,6 +388,7 @@ const ManageLiveClassesPage = () => {
                   <TableRow key={lc.id}>
                     <TableCell className="font-medium">{lc.title}</TableCell>
                     <TableCell>{lc.class}</TableCell>
+                    <TableCell>{lc.platform}</TableCell> {/* Display Platform */}
                     <TableCell>{format(new Date(lc.scheduled_at), "PPP HH:mm")}</TableCell>
                     <TableCell>{lc.duration_minutes || "N/A"}</TableCell>
                     <TableCell>
@@ -379,7 +408,7 @@ const ManageLiveClassesPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-4"> {/* Adjusted colspan */}
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-4"> {/* Adjusted colspan */}
                     No live classes found. Add a new live class to get started!
                   </TableCell>
                 </TableRow>
