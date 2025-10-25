@@ -4,11 +4,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Video, Loader2, PlayCircle, User } from "lucide-react"; // Added User icon
+import { ArrowLeft, Video, Loader2, PlayCircle, User, Calendar, Clock, BookOpen } from "lucide-react";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { useSession } from "@/components/SessionContextProvider";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface RecordedClass {
   id: string;
@@ -87,50 +89,75 @@ const RecordedClassPage = () => {
 
   if (sessionLoading || loadingClasses) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <span className="ml-3 text-lg text-muted-foreground">Loading recorded classes...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <span className="text-lg text-slate-700">Loading recorded classes...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
-      <div className="w-full max-w-4xl mb-6">
-        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="w-full max-w-5xl mb-6">
+        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2 bg-white shadow-md hover:shadow-lg transition-shadow">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </Button>
       </div>
-      <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
-        <CardHeader className="text-center">
-          <Video className="h-12 w-12 text-primary mx-auto mb-4" />
-          <CardTitle className="text-3xl font-bold text-primary">Recorded Classes</CardTitle>
-          <CardDescription className="text-muted-foreground">
+      
+      <Card className="w-full max-w-5xl shadow-xl rounded-2xl overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 text-white">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-white/20 p-4 rounded-full">
+              <Video className="h-12 w-12 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold text-center">Recorded Classes</CardTitle>
+          <CardDescription className="text-blue-100 text-center mt-2">
             यहां आपके क्लास ({userClass || 'N/A'}) के रिकॉर्डेड क्लास वीडियो देखें।
           </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        </div>
+        
+        <CardContent className="p-8">
           {!userClass ? (
-            <div className="text-center p-6 bg-yellow-50 border border-yellow-200 rounded-md">
-              <User className="h-10 w-10 text-yellow-600 mx-auto mb-3" />
-              <p className="text-lg font-semibold text-yellow-800 mb-2">आपकी क्लास की जानकारी नहीं मिली।</p>
-              <p className="text-muted-foreground mb-4">रिकॉर्डेड क्लास देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
-              <Button onClick={() => navigate("/profile")} className="bg-yellow-600 hover:bg-yellow-700 text-white">
+            <div className="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="w-20 h-20 bg-amber-100 p-4 rounded-full mx-auto mb-4">
+                <User className="h-12 w-12 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">आपकी क्लास की जानकारी नहीं मिली।</h3>
+              <p className="text-slate-600 mb-6">रिकॉर्डेड क्लास देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
+              <Button onClick={() => navigate("/profile")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md hover:shadow-lg transition-shadow">
                 प्रोफ़ाइल अपडेट करें
               </Button>
             </div>
           ) : recordedClasses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recordedClasses.map((rc) => (
-                <Card key={rc.id} className="p-4 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">{rc.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{rc.description}</p>
-                    <p className="text-xs text-gray-500">Class: {rc.class} | Subject: {rc.subject}</p>
+                <Card key={rc.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                        {rc.class}
+                      </Badge>
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200">
+                        {rc.subject}
+                      </Badge>
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{rc.title}</h3>
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">{rc.description}</p>
+                    <div className="flex items-center text-xs text-slate-500">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {format(new Date(rc.created_at), "PPP")}
+                    </div>
                   </div>
-                  <div className="mt-4">
-                    <Button variant="outline" className="w-full" onClick={() => handleViewVideo(rc.id)}>
+                  <div className="p-4 bg-white">
+                    <Button 
+                      onClick={() => handleViewVideo(rc.id)} 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                    >
                       <PlayCircle className="mr-2 h-4 w-4" /> View Video
                     </Button>
                   </div>
@@ -138,7 +165,13 @@ const RecordedClassPage = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-lg text-muted-foreground">अभी आपकी क्लास के लिए कोई रिकॉर्डेड क्लास उपलब्ध नहीं है।</p>
+            <div className="text-center py-12 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="w-20 h-20 bg-slate-100 p-4 rounded-full mx-auto mb-4">
+                <Video className="h-12 w-12 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-800 mb-2">No Recorded Classes Available</h3>
+              <p className="text-slate-600">अभी आपकी क्लास के लिए कोई रिकॉर्डेड क्लास उपलब्ध नहीं है।</p>
+            </div>
           )}
         </CardContent>
       </Card>
