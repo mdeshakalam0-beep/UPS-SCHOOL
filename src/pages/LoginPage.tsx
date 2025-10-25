@@ -295,6 +295,9 @@ const LoginPage = () => {
                         selected={dateOfBirth}
                         onSelect={setDateOfBirth}
                         initialFocus
+                        captionLayout="dropdown" // Enable year and month dropdowns
+                        fromYear={1900} // Start year for selection
+                        toYear={new Date().getFullYear()} // End year for selection (current year)
                       />
                     </PopoverContent>
                   </Popover>

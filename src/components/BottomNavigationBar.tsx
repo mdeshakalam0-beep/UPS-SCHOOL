@@ -18,6 +18,11 @@ const BottomNavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Do not show bottom navigation bar on the login page
+  if (location.pathname === '/') {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 flex justify-around items-center py-3 min-h-[4rem] md:hidden">
       {navItems.map((item) => (

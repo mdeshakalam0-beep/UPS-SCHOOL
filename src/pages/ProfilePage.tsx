@@ -102,7 +102,7 @@ const ProfilePage = () => {
       setAvatarPreviewUrl(URL.createObjectURL(file));
     } else {
       setAvatarFile(null);
-      setAvatarPreviewUrl(null);
+      setAvatarPreviewUrl(profile?.avatar_url || null);
     }
   };
 
@@ -143,6 +143,13 @@ const ProfilePage = () => {
 
       if (avatarFile) {
         newAvatarUrl = await uploadAvatar(avatarFile, user.id);
+      } else if (avatarPreviewUrl === null && profile?.avatar_url) {
+        // If avatar was removed and there was an old one, delete it from storage
+        const oldFilePath = profile.avatar_url.split('/').slice(-2).join('/');
+        if (oldFilePath) {
+          await supabase.storage.from('avatars').remove([oldFilePath]);
+        }
+        newAvatarUrl = null;
       }
 
       const { error } = await supabase
@@ -295,6 +302,9 @@ const ProfilePage = () => {
                       selected={editableProfile.date_of_birth ? new Date(editableProfile.date_of_birth) : undefined}
                       onSelect={handleDateChange}
                       initialFocus
+                      captionLayout="dropdown" // Enable year and month dropdowns
+                      fromYear={1900} // Start year for selection
+                      toYear={new Date().getFullYear()} // End year for selection (current year)
                     />
                   </PopoverContent>
                 </Popover>
