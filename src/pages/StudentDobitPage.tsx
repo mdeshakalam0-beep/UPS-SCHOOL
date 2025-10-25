@@ -228,7 +228,7 @@ const StudentDobitPage = () => {
           </Button>
         </div>
         <Card className="w-full max-w-4xl shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
             <UserIcon className="h-16 w-16 mx-auto mb-4 bg-white/20 p-3 rounded-full" />
             <CardTitle className="text-3xl font-bold">Dobit Box</CardTitle>
             <CardDescription className="text-blue-100 mt-2">
