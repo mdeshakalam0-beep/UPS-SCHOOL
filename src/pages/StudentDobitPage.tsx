@@ -18,7 +18,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
 const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
-const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"];
+const subjects = [
+  "Anthropology", "Biology", "Chemistry", "Civic Political Science", "Computer Science",
+  "Disaster Management", "Economics", "English", "General", "Geography", "Hindi",
+  "History", "Mathematics", "Physics", "Psychology", "Sanskrit", "Science", "Urdu"
+];
 
 interface StudentDoubt {
   id: string;

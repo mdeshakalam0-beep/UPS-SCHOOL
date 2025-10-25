@@ -37,7 +37,11 @@ interface ObjectiveQuestion {
 }
 
 const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
-const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Added subjects
+const subjects = [
+  "Anthropology", "Biology", "Chemistry", "Civic Political Science", "Computer Science",
+  "Disaster Management", "Economics", "English", "General", "Geography", "Hindi",
+  "History", "Mathematics", "Physics", "Psychology", "Sanskrit", "Science", "Urdu"
+];
 const correctOptions = ["A", "B", "C", "D"];
 
 const ManageObjectiveTestsPage = () => {
@@ -95,23 +99,6 @@ const ManageObjectiveTestsPage = () => {
       showError("Failed to load objective tests.");
     } else {
       setTests(data as ObjectiveTest[]);
-    }
-    setLoading(false);
-  }, []);
-
-  const fetchQuestions = useCallback(async (testId: string) => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("objective_questions")
-      .select("*")
-      .eq("test_id", testId)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching questions:", error);
-      showError("Failed to load questions for this test.");
-    } else {
-      setQuestions(data as ObjectiveQuestion[]);
     }
     setLoading(false);
   }, []);

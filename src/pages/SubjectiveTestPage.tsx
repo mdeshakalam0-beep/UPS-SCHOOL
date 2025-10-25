@@ -41,7 +41,11 @@ interface StudentSubmission {
   student_subjective_grades: { id: string; grade: number | null; feedback: string | null }[]; // Added id
 }
 
-const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"]; // Defined subjects
+const subjects = [
+  "Anthropology", "Biology", "Chemistry", "Civic Political Science", "Computer Science",
+  "Disaster Management", "Economics", "English", "General", "Geography", "Hindi",
+  "History", "Mathematics", "Physics", "Psychology", "Sanskrit", "Science", "Urdu"
+];
 
 const SubjectiveTestPage = () => {
   const navigate = useNavigate();

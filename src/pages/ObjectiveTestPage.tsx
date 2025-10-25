@@ -35,7 +35,11 @@ interface ObjectiveQuestion {
   correct_option: 'A' | 'B' | 'C' | 'D';
 }
 
-const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"];
+const subjects = [
+  "Anthropology", "Biology", "Chemistry", "Civic Political Science", "Computer Science",
+  "Disaster Management", "Economics", "English", "General", "Geography", "Hindi",
+  "History", "Mathematics", "Physics", "Psychology", "Sanskrit", "Science", "Urdu"
+];
 
 const ObjectiveTestPage = () => {
   const navigate = useNavigate();
@@ -270,7 +274,7 @@ const ObjectiveTestPage = () => {
             <CardDescription className="text-blue-100 mt-2">
               आपकी क्लास की जानकारी नहीं मिली।
             </CardDescription>
-          </div>
+          </CardHeader>
           <CardContent className="p-8 text-center">
             <p className="text-lg font-semibold text-slate-700 mb-6">ऑब्जेक्टिव टेस्ट देखने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
             <Button onClick={() => navigate("/profile")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md hover:shadow-lg transition-shadow">

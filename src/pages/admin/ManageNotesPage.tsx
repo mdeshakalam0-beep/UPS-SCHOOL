@@ -12,6 +12,7 @@ import { BookOpen, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider"; // Import useSession
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
 
 interface Note {
   id: string;
@@ -23,6 +24,12 @@ interface Note {
   created_at: string;
   user_id: string; // Added user_id
 }
+
+const subjects = [
+  "Anthropology", "Biology", "Chemistry", "Civic Political Science", "Computer Science",
+  "Disaster Management", "Economics", "English", "General", "Geography", "Hindi",
+  "History", "Mathematics", "Physics", "Psychology", "Sanskrit", "Science", "Urdu"
+];
 
 const ManageNotesPage = () => {
   const { user } = useSession(); // Get current user from session
@@ -68,6 +75,10 @@ const ManageNotesPage = () => {
     } else {
       setNewNoteData((prev) => ({ ...prev, [id]: value }));
     }
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
+    setNewNoteData((prev) => ({ ...prev, [id]: value }));
   };
 
   const uploadFile = async (file: File) => {
@@ -270,7 +281,18 @@ const ManageNotesPage = () => {
                 <Label htmlFor="subject" className="text-right">
                   Subject
                 </Label>
-                <Input id="subject" value={newNoteData.subject} onChange={handleInputChange} className="col-span-3" />
+                <Select onValueChange={(value) => handleSelectChange("subject", value)} value={newNoteData.subject} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((sub) => (
+                      <SelectItem key={sub} value={sub}>
+                        {sub}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
