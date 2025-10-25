@@ -19,6 +19,7 @@ import RecordedVideoViewerPage from "./pages/RecordedVideoViewerPage";
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import { NotificationProvider } from "./components/NotificationProvider"; // Import NotificationProvider
+import BottomNavigationBar from "./components/BottomNavigationBar"; // Import BottomNavigationBar
 
 // Admin Module Pages
 import ManageStudentsPage from "./pages/admin/ManageStudentsPage";
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
+            <BottomNavigationBar /> {/* Moved outside the content wrapper */}
           </NotificationProvider>
         </SessionContextProvider>
       </BrowserRouter>
