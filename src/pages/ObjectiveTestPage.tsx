@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { showSuccess, showError } from "@/utils/toast";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { Loader2, User, ArrowLeft } from "lucide-react";
@@ -250,7 +251,7 @@ const ObjectiveTestPage = () => {
 
   if (!userClass) {
     return (
-      <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
+      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
         <div className="w-full max-w-4xl mb-6">
           <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
             <ArrowLeft className="h-4 w-4" />
@@ -272,13 +273,14 @@ const ObjectiveTestPage = () => {
             </Button>
           </CardContent>
         </Card>
+        <BottomNavigationBar />
       </div>
     );
   }
 
   if (!testStarted) {
     return (
-      <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
+      <div className="min-h-screen flex flex-col items-center p-4 pb-20 md:pb-8">
         <div className="w-full max-w-4xl mb-6">
           <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
             <ArrowLeft className="h-4 w-4" />
@@ -334,12 +336,13 @@ const ObjectiveTestPage = () => {
             )}
           </CardContent>
         </Card>
+        <BottomNavigationBar />
       </div>
     );
   }
 
   return (
-    <div className="w-full flex flex-col items-center justify-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 pb-20 md:pb-8">
       <Card className="w-full max-w-2xl shadow-lg rounded-lg">
         <CardHeader>
           <div className="flex justify-between items-center mb-4">
@@ -398,6 +401,7 @@ const ObjectiveTestPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <BottomNavigationBar />
     </div>
   );
 };

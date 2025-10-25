@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, MonitorPlay, Loader2, User, CalendarDays, Clock, Link } from "lucide-react";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import { useSession } from "@/components/SessionContextProvider";
@@ -96,7 +97,7 @@ const LiveClassPage = () => {
   }
 
   return (
-    <div className="w-full flex flex-col items-center"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 */}
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
       <div className="w-full max-w-4xl mb-6">
         <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
           <ArrowLeft className="h-4 w-4" />
@@ -160,6 +161,7 @@ const LiveClassPage = () => {
           )}
         </CardContent>
       </Card>
+      <BottomNavigationBar />
     </div>
   );
 };

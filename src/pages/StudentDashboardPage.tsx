@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import Header from "@/components/Header";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
 import Autoplay from "embla-carousel-autoplay"; // Import Autoplay
@@ -152,8 +154,8 @@ const StudentDashboardPage = () => {
   }, [fetchActiveBanners, fetchTopStudents]); // Removed topStudents from dependencies to prevent potential infinite loop
 
   return (
-    <div className="w-full"> {/* Removed min-h-screen, p-4, pb-20, md:pb-8 as they are in StudentLayout */}
-      {/* Header is now in StudentLayout */}
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+      <Header />
 
       {/* Hero Banner (Auto Slider) */}
       <section className="mb-8">
@@ -255,7 +257,7 @@ const StudentDashboardPage = () => {
       </section>
 
       <MadeWithDyad />
-      {/* BottomNavigationBar is now in StudentLayout */}
+      <BottomNavigationBar />
     </div>
   );
 };
