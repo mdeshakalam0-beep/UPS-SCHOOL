@@ -21,6 +21,7 @@ interface LiveClass {
   scheduled_at: string; // ISO string
   duration_minutes: number | null;
   created_at: string;
+  is_active: boolean; // Added is_active
 }
 
 const LiveClassPage = () => {
@@ -67,6 +68,7 @@ const LiveClassPage = () => {
       .from("live_classes")
       .select("*")
       .eq("class", currentUserClass)
+      .eq("is_active", true) // Only fetch active classes for students
       .order("scheduled_at", { ascending: true }); // Order by upcoming classes
 
     if (error) {
@@ -88,8 +90,10 @@ const LiveClassPage = () => {
     window.open(meetingLink, "_blank");
   };
 
-  const getClassStatusBadge = (classTime: Date) => {
-    if (isPast(classTime)) {
+  const getClassStatusBadge = (classTime: Date, isActive: boolean) => {
+    if (!isActive) {
+      return <Badge variant="destructive" className="bg-red-100 text-red-700">Inactive</Badge>;
+    } else if (isPast(classTime)) {
       return <Badge variant="secondary" className="bg-slate-100 text-slate-600">Ended</Badge>;
     } else if (isToday(classTime)) {
       return <Badge variant="secondary" className="bg-green-100 text-green-700">Today</Badge>;
@@ -151,6 +155,8 @@ const LiveClassPage = () => {
               {liveClasses.map((lc) => {
                 const classTime = new Date(lc.scheduled_at);
                 const isClassOver = isPast(classTime);
+                const isJoinDisabled = isClassOver || !lc.is_active; // Disable if over or inactive
+
                 return (
                   <Card key={lc.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-0">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
@@ -158,7 +164,7 @@ const LiveClassPage = () => {
                         <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
                           {lc.class}
                         </Badge>
-                        {getClassStatusBadge(classTime)}
+                        {getClassStatusBadge(classTime, lc.is_active)}
                       </div>
                       <h3 className="text-xl font-semibold text-slate-800 mb-2">{lc.title}</h3>
                       <p className="text-sm text-slate-600 mb-3 line-clamp-2">{lc.description}</p>
@@ -175,18 +181,22 @@ const LiveClassPage = () => {
                     </div>
                     <div className="p-4 bg-white">
                       <Button
-                        variant={isClassOver ? "secondary" : "default"}
+                        variant={isJoinDisabled ? "secondary" : "default"}
                         className={`w-full font-medium py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ${
-                          isClassOver 
+                          isJoinDisabled
                             ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
                             : "bg-blue-600 hover:bg-blue-700 text-white"
                         }`}
                         onClick={() => handleJoinClass(lc.meeting_link)}
-                        disabled={isClassOver}
+                        disabled={isJoinDisabled}
                       >
                         {isClassOver ? (
                           <>
                             <Video className="mr-2 h-4 w-4" /> Class Ended
+                          </>
+                        ) : !lc.is_active ? (
+                          <>
+                            <Video className="mr-2 h-4 w-4" /> Class Inactive
                           </>
                         ) : (
                           <>

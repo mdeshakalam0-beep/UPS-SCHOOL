@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch"; // Import Switch component
+import { Badge } from "@/components/ui/badge"; // Import Badge component
 
 interface LiveClass {
   id: string;
@@ -27,6 +29,7 @@ interface LiveClass {
   duration_minutes: number | null;
   uploaded_by: string | null;
   created_at: string;
+  is_active: boolean; // Added is_active
 }
 
 const ManageLiveClassesPage = () => {
@@ -41,6 +44,7 @@ const ManageLiveClassesPage = () => {
     class: string;
     scheduled_at: Date | undefined;
     duration_minutes: number | undefined;
+    is_active: boolean; // Added is_active
   }>({
     title: "",
     description: "",
@@ -48,6 +52,7 @@ const ManageLiveClassesPage = () => {
     class: "",
     scheduled_at: undefined,
     duration_minutes: undefined,
+    is_active: true, // Default to active
   });
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +82,10 @@ const ManageLiveClassesPage = () => {
     setNewClassData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleSwitchChange = (checked: boolean) => {
+    setNewClassData((prev) => ({ ...prev, is_active: checked }));
+  };
+
   const handleDateChange = (date: Date | undefined) => {
     setNewClassData((prev) => ({ ...prev, scheduled_at: date }));
   };
@@ -103,6 +112,7 @@ const ManageLiveClassesPage = () => {
         scheduled_at: newClassData.scheduled_at.toISOString(),
         duration_minutes: newClassData.duration_minutes,
         uploaded_by: user.id,
+        is_active: newClassData.is_active, // Include is_active
       });
 
       if (error) {
@@ -129,6 +139,7 @@ const ManageLiveClassesPage = () => {
       class: liveClass.class,
       scheduled_at: new Date(liveClass.scheduled_at),
       duration_minutes: liveClass.duration_minutes || undefined,
+      is_active: liveClass.is_active, // Set is_active for editing
     });
     setIsDialogOpen(true);
   };
@@ -152,6 +163,7 @@ const ManageLiveClassesPage = () => {
           scheduled_at: newClassData.scheduled_at.toISOString(),
           duration_minutes: newClassData.duration_minutes,
           updated_at: new Date().toISOString(),
+          is_active: newClassData.is_active, // Update is_active
         })
         .eq("id", editingClass.id);
 
@@ -200,6 +212,7 @@ const ManageLiveClassesPage = () => {
       class: "",
       scheduled_at: undefined,
       duration_minutes: undefined,
+      is_active: true, // Reset to default active
     });
   };
 
@@ -301,6 +314,17 @@ const ManageLiveClassesPage = () => {
                   className="col-span-3"
                 />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="is_active" className="text-right">
+                  Active
+                </Label>
+                <Switch
+                  id="is_active"
+                  checked={newClassData.is_active}
+                  onCheckedChange={handleSwitchChange}
+                  className="col-span-3"
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Cancel</Button>
@@ -326,6 +350,7 @@ const ManageLiveClassesPage = () => {
                 <TableHead>Class</TableHead>
                 <TableHead>Scheduled At</TableHead>
                 <TableHead>Duration (min)</TableHead>
+                <TableHead>Status</TableHead> {/* Added Status column */}
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -337,6 +362,11 @@ const ManageLiveClassesPage = () => {
                     <TableCell>{lc.class}</TableCell>
                     <TableCell>{format(new Date(lc.scheduled_at), "PPP HH:mm")}</TableCell>
                     <TableCell>{lc.duration_minutes || "N/A"}</TableCell>
+                    <TableCell>
+                      <Badge variant={lc.is_active ? "default" : "destructive"}>
+                        {lc.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => handleEditClass(lc)} className="mr-2">
                         <Pencil className="h-4 w-4" />
@@ -349,7 +379,7 @@ const ManageLiveClassesPage = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-4">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-4"> {/* Adjusted colspan */}
                     No live classes found. Add a new live class to get started!
                   </TableCell>
                 </TableRow>
