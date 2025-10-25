@@ -55,6 +55,7 @@ const ObjectiveTestPage = () => {
   const [userClass, setUserClass] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [answersSubmitted, setAnswersSubmitted] = useState<{ [key: string]: string }>({});
+  const [testStartTime, setTestStartTime] = useState<Date | null>(null); // New state for test start time
 
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
@@ -148,8 +149,8 @@ const ObjectiveTestPage = () => {
   }, [selectedAnswer, currentQuestion]);
 
   const submitTestResults = useCallback(async () => {
-    if (!user || !selectedTest) {
-      showError("User or test not found for submitting results.");
+    if (!user || !selectedTest || !testStartTime) { // Ensure testStartTime is available
+      showError("User, test, or start time not found for submitting results.");
       return;
     }
 
@@ -159,6 +160,8 @@ const ObjectiveTestPage = () => {
         test_id: selectedTest.id,
         score: score,
         total_questions: totalQuestions,
+        started_at: testStartTime.toISOString(), // Include started_at
+        submitted_at: new Date().toISOString(), // Current time as submitted_at
       });
 
       if (error) {
@@ -169,7 +172,7 @@ const ObjectiveTestPage = () => {
       console.error("Error submitting test results:", error.message);
       showError(`Failed to submit test results: ${error.message}`);
     }
-  }, [user, selectedTest, score, totalQuestions]);
+  }, [user, selectedTest, score, totalQuestions, testStartTime]);
 
   const handleNextQuestion = useCallback(() => {
     evaluateAnswer();
@@ -225,6 +228,7 @@ const ObjectiveTestPage = () => {
     setAnswersSubmitted({});
     setTestFinished(false);
     setShowResultDialog(false);
+    setTestStartTime(new Date()); // Record the start time
     showSuccess(`Objective Test "${test.title}" Started! Good luck!`);
   };
 
