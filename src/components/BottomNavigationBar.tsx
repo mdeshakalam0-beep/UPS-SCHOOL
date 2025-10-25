@@ -18,8 +18,8 @@ const BottomNavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Do not show bottom navigation bar on the login page
-  if (location.pathname === '/') {
+  // Do not show bottom navigation bar on the login page or admin pages
+  if (location.pathname === '/' || location.pathname.startsWith('/admin') || location.pathname === '/admin-dashboard') {
     return null;
   }
 
