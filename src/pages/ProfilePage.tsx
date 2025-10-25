@@ -182,31 +182,33 @@ const ProfilePage = () => {
 
   if (sessionLoading || loadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <span className="ml-3 text-lg text-muted-foreground">Loading profile...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <span className="text-lg text-slate-700">Loading profile...</span>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="w-full max-w-4xl mb-6">
-          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2 bg-white shadow-md">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Dashboard</span>
           </Button>
         </div>
-        <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
-          <CardHeader>
-            <User className="h-12 w-12 text-primary mx-auto mb-4" />
-            <CardTitle className="text-3xl font-bold text-primary">My Profile</CardTitle>
-            <CardDescription className="text-muted-foreground">
+        <Card className="w-full max-w-4xl shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
+            <User className="h-16 w-16 mx-auto mb-4 bg-white/20 p-3 rounded-full" />
+            <CardTitle className="text-3xl font-bold">My Profile</CardTitle>
+            <CardDescription className="text-blue-100 mt-2">
               Could not load profile details. Please try again later.
             </CardDescription>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <CardContent className="p-8 text-center">
             <SignOutButton />
           </CardContent>
         </Card>
@@ -216,60 +218,68 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="w-full max-w-4xl mb-6 flex justify-between items-center">
-        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2 bg-white shadow-md hover:shadow-lg transition-shadow">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </Button>
         <SignOutButton />
       </div>
-      <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
-        <CardHeader className="text-center">
-          <div className="relative mx-auto mb-4 w-24 h-24">
-            <Avatar className="w-24 h-24 mx-auto">
-              <AvatarImage src={avatarPreviewUrl || profile.avatar_url || undefined} alt="Profile Avatar" />
-              <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
-                {profile.first_name ? profile.first_name[0].toUpperCase() : <User className="h-12 w-12" />}
-              </AvatarFallback>
-            </Avatar>
-            {isEditing && (
-              <Label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer hover:bg-primary/90 transition-colors">
-                <Camera className="h-4 w-4" />
-                <Input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" />
-              </Label>
-            )}
+      
+      <Card className="w-full max-w-4xl shadow-xl rounded-2xl overflow-hidden">
+        {/* Profile Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 text-white">
+          <div className="flex flex-col items-center">
+            <div className="relative mb-4">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                <Avatar className="w-32 h-32">
+                  <AvatarImage src={avatarPreviewUrl || profile.avatar_url || undefined} alt="Profile Avatar" />
+                  <AvatarFallback className="bg-white text-blue-600 text-4xl font-bold">
+                    {profile.first_name ? profile.first_name[0].toUpperCase() : <User className="h-16 w-16" />}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              {isEditing && (
+                <Label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-white text-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-50 transition-colors shadow-lg">
+                  <Camera className="h-5 w-5" />
+                  <Input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarFileChange} className="hidden" />
+                </Label>
+              )}
+            </div>
+            <CardTitle className="text-3xl font-bold text-center">
+              {profile.first_name} {profile.last_name}
+            </CardTitle>
+            <CardDescription className="text-blue-100 mt-2 text-center">
+              {isEditing ? "Edit your personal information" : "Your personal information"}
+            </CardDescription>
           </div>
-          <CardTitle className="text-3xl font-bold text-primary">
-            {profile.first_name} {profile.last_name}
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            {isEditing ? "Edit your personal information" : "Your personal information"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        </div>
+        
+        {/* Profile Content */}
+        <CardContent className="p-8">
           {isEditing ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                <Input id="first_name" value={editableProfile.first_name || ""} onChange={handleInputChange} />
+                <Label htmlFor="first_name" className="text-slate-700 font-medium">First Name</Label>
+                <Input id="first_name" value={editableProfile.first_name || ""} onChange={handleInputChange} className="border-slate-300 focus:border-blue-500" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input id="last_name" value={editableProfile.last_name || ""} onChange={handleInputChange} />
+                <Label htmlFor="last_name" className="text-slate-700 font-medium">Last Name</Label>
+                <Input id="last_name" value={editableProfile.last_name || ""} onChange={handleInputChange} className="border-slate-300 focus:border-blue-500" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={editableProfile.email || ""} disabled className="bg-gray-100 cursor-not-allowed" />
+                <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
+                <Input id="email" type="email" value={editableProfile.email || ""} disabled className="bg-slate-100 border-slate-300 cursor-not-allowed" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="mobile_number">Mobile Number</Label>
-                <Input id="mobile_number" type="tel" value={editableProfile.mobile_number || ""} onChange={handleInputChange} />
+                <Label htmlFor="mobile_number" className="text-slate-700 font-medium">Mobile Number</Label>
+                <Input id="mobile_number" type="tel" value={editableProfile.mobile_number || ""} onChange={handleInputChange} className="border-slate-300 focus:border-blue-500" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="class">Class</Label>
+                <Label htmlFor="class" className="text-slate-700 font-medium">Class</Label>
                 <Select onValueChange={(value) => handleSelectChange("class", value)} value={editableProfile.class || ""}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-slate-300 focus:border-blue-500">
                     <SelectValue placeholder="Select your class" />
                   </SelectTrigger>
                   <SelectContent>
@@ -282,13 +292,13 @@ const ProfilePage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="date_of_birth">Date of Birth</Label>
+                <Label htmlFor="date_of_birth" className="text-slate-700 font-medium">Date of Birth</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal border-slate-300 focus:border-blue-500",
                         !editableProfile.date_of_birth && "text-muted-foreground"
                       )}
                     >
@@ -310,9 +320,9 @@ const ProfilePage = () => {
                 </Popover>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
+                <Label htmlFor="gender" className="text-slate-700 font-medium">Gender</Label>
                 <Select onValueChange={(value) => handleSelectChange("gender", value)} value={editableProfile.gender || ""}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-slate-300 focus:border-blue-500">
                     <SelectValue placeholder="Select your gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -325,48 +335,80 @@ const ProfilePage = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input id="role" value={editableProfile.role || ""} disabled className="bg-gray-100 cursor-not-allowed" />
+                <Label htmlFor="role" className="text-slate-700 font-medium">Role</Label>
+                <Input id="role" value={editableProfile.role || ""} disabled className="bg-slate-100 border-slate-300 cursor-not-allowed" />
               </div>
-              <div className="md:col-span-2 flex justify-end space-x-2 mt-4">
-                <Button variant="outline" onClick={handleEditToggle} disabled={isSaving}>
+              <div className="md:col-span-2 flex justify-end space-x-3 mt-6">
+                <Button variant="outline" onClick={handleEditToggle} disabled={isSaving} className="px-6 py-2 border-slate-300 hover:bg-slate-50">
                   <XCircle className="mr-2 h-4 w-4" /> Cancel
                 </Button>
-                <Button onClick={handleSaveProfile} disabled={isSaving} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button onClick={handleSaveProfile} disabled={isSaving} className="px-6 py-2 bg-blue-600 hover:bg-blue-700">
                   {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                   Save Changes
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Email: <span className="font-medium">{profile.email}</span></p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <Mail className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Email</p>
+                    <p className="text-lg font-medium text-slate-800">{profile.email}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <Phone className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Mobile Number</p>
+                    <p className="text-lg font-medium text-slate-800">{profile.mobile_number || "N/A"}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-purple-100 p-3 rounded-full">
+                    <GraduationCap className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Class</p>
+                    <p className="text-lg font-medium text-slate-800">{profile.class || "N/A"}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-orange-100 p-3 rounded-full">
+                    <CalendarDays className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Date of Birth</p>
+                    <p className="text-lg font-medium text-slate-800">{profile.date_of_birth ? format(new Date(profile.date_of_birth), "PPP") : "N/A"}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-pink-100 p-3 rounded-full">
+                    <User className="h-6 w-6 text-pink-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Gender</p>
+                    <p className="text-lg font-medium text-slate-800 capitalize">{profile.gender || "N/A"}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center space-x-4">
+                  <div className="bg-indigo-100 p-3 rounded-full">
+                    <User className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Role</p>
+                    <p className="text-lg font-medium text-slate-800 capitalize">{profile.role || "N/A"}</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <Phone className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Mobile: <span className="font-medium">{profile.mobile_number || "N/A"}</span></p>
-              </div>
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <GraduationCap className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Class: <span className="font-medium">{profile.class || "N/A"}</span></p>
-              </div>
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <CalendarDays className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Date of Birth: <span className="font-medium">{profile.date_of_birth ? format(new Date(profile.date_of_birth), "PPP") : "N/A"}</span></p>
-              </div>
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Gender: <span className="font-medium capitalize">{profile.gender || "N/A"}</span></p>
-              </div>
-              <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/50">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <p className="text-lg text-foreground flex-grow">Role: <span className="font-medium capitalize">{profile.role || "N/A"}</span></p>
-              </div>
-              <div className="md:col-span-2 mt-4">
-                <Button onClick={handleEditToggle} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Pencil className="mr-2 h-4 w-4" /> Edit Profile
+              <div className="mt-8">
+                <Button onClick={handleEditToggle} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-shadow">
+                  <Pencil className="mr-2 h-5 w-5" /> Edit Profile
                 </Button>
               </div>
             </div>
