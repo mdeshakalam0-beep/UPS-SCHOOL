@@ -6,45 +6,45 @@
 
 @layer base {
   :root {
-    --background: 216 100% 98%; /* Light White-Blue from #F5F9FF */
-    --foreground: 220 10% 15%; /* Dark blue-grey, good contrast */
+    --background: 216 100% 98%; /* #F5F9FF - Light White-Blue */
+    --foreground: 216 48% 11%; /* #0D1B2A - Dark Navy */
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 220 10% 15%;
+    --card: 0 0% 100%; /* #FFFFFF - White */
+    --card-foreground: 216 48% 11%; /* #0D1B2A - Dark Navy */
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 220 10% 15%;
+    --popover: 0 0% 100%; /* #FFFFFF - White */
+    --popover-foreground: 216 48% 11%; /* #0D1B2A - Dark Navy */
 
-    --primary: 204 87% 51%; /* Education Blue from #1E88E5 */
+    --primary: 204 87% 51%; /* #1E88E5 - Education Blue */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 216 10% 90%; /* Light grey-blue, subtle */
-    --secondary-foreground: 220 10% 25%;
+    --secondary: 45 100% 65%; /* #FFD54F - Soft Yellow */
+    --secondary-foreground: 216 48% 11%; /* #0D1B2A - Dark Navy */
 
-    --muted: 216 10% 95%; /* Very light grey-blue */
-    --muted-foreground: 220 5% 50%;
+    --muted: 216 10% 95%; /* Very light grey-blue, derived from background */
+    --muted-foreground: 204 10% 41%; /* #5C6B73 - Gray */
 
-    --accent: 45 100% 65%; /* Soft Yellow from #FFD54F */
-    --accent-foreground: 220 10% 25%;
+    --accent: 45 100% 65%; /* #FFD54F - Soft Yellow */
+    --accent-foreground: 216 48% 11%; /* #0D1B2A - Dark Navy */
 
-    --destructive: 0 84.2% 60.2%; /* Red for warnings */
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%; /* Red for warnings (kept existing) */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 216 50% 90%; /* Soft light blue-grey */
-    --input: 216 100% 95%; /* Very light blue-white */
+    --border: 0 0% 88%; /* #E0E0E0 - Light Gray */
+    --input: 216 100% 95%; /* Slightly darker than background for input fields */
     --ring: 204 87% 51%; /* Matches primary */
 
     --radius: 0.75rem; /* Slightly more rounded corners */
 
-    /* Sidebar colors (kept as is, or adjusted slightly for harmony) */
-    --sidebar-background: 240 5.3% 26.1%;
+    /* Sidebar colors (adjusted for harmony with new palette) */
+    --sidebar-background: 216 48% 15%; /* Darker navy for sidebar */
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-primary: 204 87% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 100% 65%;
+    --sidebar-accent-foreground: 216 48% 11%;
+    --sidebar-border: 216 48% 20%;
+    --sidebar-ring: 204 87% 51%;
   }
 
   .dark {
@@ -60,7 +60,7 @@
     --primary: 204 87% 60%; /* Slightly brighter Education Blue for dark theme */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 216 15% 25%;
+    --secondary: 45 100% 75%; /* Slightly brighter Soft Yellow for dark theme */
     --secondary-foreground: 216 10% 90%;
 
     --muted: 216 10% 20%;
@@ -75,7 +75,7 @@
     --border: 216 10% 25%;
     --input: 216 10% 20%;
     --ring: 204 87% 60%; /* Matches primary */
-    /* Sidebar colors (kept as is, or adjusted slightly for harmony) */
+    /* Sidebar colors (adjusted for harmony with new palette) */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
