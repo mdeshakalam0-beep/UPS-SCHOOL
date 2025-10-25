@@ -239,7 +239,7 @@ const StudentDashboardPage = () => {
               ))}
             </CarouselContent>
             <CarouselPrevious className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
-            <CarouselNext className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
+            {/* Removed CarouselNext as requested */}
           </Carousel>
         ) : (
           <div className="flex justify-center items-center h-48 bg-white rounded-xl shadow-lg border border-slate-200">
