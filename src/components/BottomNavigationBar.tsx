@@ -19,19 +19,19 @@ const BottomNavigationBar = () => {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 flex justify-around items-center py-2 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 flex justify-around items-center py-2 min-h-[4rem] md:hidden">
       {navItems.map((item) => (
         <Button
           key={item.name}
           variant="ghost"
           className={cn(
-            "flex flex-col items-center justify-center p-2 h-auto text-center space-y-1",
+            "flex flex-col items-center justify-center p-1 h-auto text-center space-y-1 flex-1 min-w-0",
             location.pathname === item.path ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary"
           )}
           onClick={() => navigate(item.path)}
         >
           <item.icon className="h-5 w-5" />
-          <span className="text-xs font-medium">{item.name}</span>
+          <span className="text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</span>
         </Button>
       ))}
     </div>
