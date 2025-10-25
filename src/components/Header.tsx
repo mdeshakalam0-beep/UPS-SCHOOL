@@ -47,7 +47,7 @@ const Header = () => {
   }, [fetchSchoolSettings]);
 
   return (
-    <header className="flex items-center justify-between p-4 bg-card shadow-md rounded-lg mb-6">
+    <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between p-4 bg-card shadow-md">
       {/* Left: School Logo and Name */}
       <div className="flex items-center space-x-2">
         {loadingSettings ? (

@@ -207,7 +207,7 @@ const StudentDashboardPage = () => {
   }, [fetchActiveBanners, fetchTopStudents]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20 px-4 sm:px-6 lg:px-8 pb-20 md:pb-8">
       <Header />
 
       {/* Hero Banner (Auto Slider) */}
