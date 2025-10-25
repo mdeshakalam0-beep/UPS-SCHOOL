@@ -30,6 +30,7 @@ interface TopStudent {
   class: string | null;
   avatar_url: string | null;
   latest_score: number;
+  total_questions: number; // Added total_questions
   test_title: string;
   time_taken_seconds: number | null; // Added time taken
   submitted_at: string;
@@ -84,6 +85,7 @@ const StudentDashboardPage = () => {
       .select(`
         user_id,
         score,
+        total_questions,
         started_at,
         submitted_at,
         objective_tests (title),
@@ -113,6 +115,7 @@ const StudentDashboardPage = () => {
               class: result.profiles?.class,
               avatar_url: result.profiles?.avatar_url,
               latest_score: result.score,
+              total_questions: result.total_questions, // Assign total_questions
               test_title: result.objective_tests?.title || 'N/A',
               time_taken_seconds: timeTakenSeconds,
               submitted_at: result.submitted_at,
@@ -128,6 +131,7 @@ const StudentDashboardPage = () => {
                 class: result.profiles?.class,
                 avatar_url: result.profiles?.avatar_url,
                 latest_score: result.score,
+                total_questions: result.total_questions, // Assign total_questions
                 test_title: result.objective_tests?.title || 'N/A',
                 time_taken_seconds: timeTakenSeconds,
                 submitted_at: result.submitted_at,
@@ -140,6 +144,7 @@ const StudentDashboardPage = () => {
                 class: result.profiles?.class,
                 avatar_url: result.profiles?.avatar_url,
                 latest_score: result.score,
+                total_questions: result.total_questions, // Assign total_questions
                 test_title: result.objective_tests?.title || 'N/A',
                 time_taken_seconds: timeTakenSeconds,
                 submitted_at: result.submitted_at,
@@ -308,7 +313,7 @@ const StudentDashboardPage = () => {
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-600">Score:</span> {/* Smaller text */}
-                                <span className="font-bold text-blue-600 text-sm">{student.latest_score}</span> {/* Smaller text */}
+                                <span className="font-bold text-blue-600 text-sm">{student.latest_score} / {student.total_questions}</span> {/* Display score as X/Y */}
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-600">Time:</span> {/* New line for time */}
