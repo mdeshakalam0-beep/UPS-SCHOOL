@@ -188,97 +188,6 @@ const StudentDashboardPage = () => {
         )}
       </section>
 
-      {/* Top 3 Students Section - Moved here and made smaller/carousel */}
-      <section className="mb-8">
-        <Card className="w-full max-w-4xl mx-auto shadow-xl rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white"> {/* Reduced padding */}
-            <div className="flex items-center justify-center">
-              <Trophy className="h-6 w-6 mr-2" /> {/* Smaller icon */}
-              <h2 className="text-xl font-bold">Top 3 Students</h2> {/* Smaller title */}
-            </div>
-          </div>
-          <CardContent className="p-4"> {/* Reduced padding */}
-            {loadingTopStudents ? (
-              <div className="flex justify-center items-center h-32"> {/* Reduced height */}
-                <Loader2 className="h-6 w-6 animate-spin text-blue-600" /> {/* Smaller loader */}
-                <span className="ml-2 text-sm text-slate-500">Loading top students...</span> {/* Smaller text */}
-              </div>
-            ) : topStudents.length > 0 ? (
-              <Carousel
-                plugins={[
-                  Autoplay({
-                    delay: 3000, // 3 seconds
-                    stopOnInteraction: false,
-                  }),
-                ]}
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-2"> {/* Adjusted margin */}
-                  {topStudents.map((student, index) => (
-                    <CarouselItem key={student.id} className="pl-2 md:basis-1/2 lg:basis-1/3"> {/* Adjusted basis */}
-                      <div className="p-1">
-                        <Card className="shadow-lg bg-white rounded-xl overflow-hidden border-0">
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3"> {/* Reduced padding */}
-                            <div className="relative mx-auto mb-2 w-20 h-20"> {/* Smaller avatar container */}
-                              <Avatar className="w-20 h-20 mx-auto border-3 border-white shadow-lg"> {/* Smaller avatar */}
-                                <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold"> {/* Smaller text */}
-                                  {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-10 w-10" />} {/* Smaller icon */}
-                                </AvatarFallback>
-                              </Avatar>
-                              <Badge className={`absolute -bottom-1 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md ${ /* Smaller badge */
-                                index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
-                                index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
-                                'bg-gradient-to-r from-orange-400 to-orange-500'
-                              }`}>
-                                {index === 0 ? <Trophy className="h-3 w-3 mr-1" /> : <Star className="h-3 w-3 mr-1" />}
-                                #{index + 1}
-                              </Badge>
-                            </div>
-                            <CardTitle className="text-base font-semibold text-slate-800 text-center"> {/* Smaller title */}
-                              {student.first_name} {student.last_name}
-                            </CardTitle>
-                          </div>
-                          <CardContent className="pt-3 pb-2 px-3"> {/* Reduced padding */}
-                            <div className="space-y-1"> {/* Reduced space */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Class:</span> {/* Smaller text */}
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs"> {/* Smaller badge text */}
-                                  {student.class || "N/A"}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Score:</span> {/* Smaller text */}
-                                <span className="font-bold text-blue-600 text-sm">{student.latest_score}</span> {/* Smaller text */}
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-600">Test:</span> {/* Smaller text */}
-                                <span className="text-xs font-medium text-slate-800 truncate max-w-[80px]">{student.test_title}</span> {/* Smaller text */}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2" /> {/* Adjusted position */}
-                <CarouselNext className="right-2" /> {/* Adjusted position */}
-              </Carousel>
-            ) : (
-              <div className="text-center py-8"> {/* Reduced padding */}
-                <Trophy className="h-12 w-12 text-slate-300 mx-auto mb-3" /> {/* Smaller icon */}
-                <p className="text-base text-slate-600">No top students to display yet.</p> {/* Smaller text */}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-
       {/* Quick Access Buttons */}
       <section className="mb-8">
         <Card className="w-full max-w-4xl mx-auto shadow-xl rounded-2xl overflow-hidden">
@@ -291,7 +200,7 @@ const StudentDashboardPage = () => {
                 <Button
                   key={item.name}
                   variant="outline"
-                  className="flex flex-col items-center justify-center p-3 h-auto text-center space-y-2 bg-white shadow-md hover:shadow-lg border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 rounded-xl"
+                  className="flex flex-col items-center justify-center p-4 h-auto text-center space-y-2 bg-white shadow-md hover:shadow-lg border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 rounded-xl"
                   onClick={() => navigate(item.path)}
                 >
                   <item.icon className="h-8 w-8 text-blue-600" />
@@ -299,6 +208,77 @@ const StudentDashboardPage = () => {
                 </Button>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Top 3 Students Section - More Compact */}
+      <section className="mb-8">
+        <Card className="w-full max-w-4xl mx-auto shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
+            <div className="flex items-center justify-center">
+              <Trophy className="h-6 w-6 mr-2" />
+              <h2 className="text-xl font-bold">Top 3 Students</h2>
+            </div>
+          </div>
+          <CardContent className="p-4">
+            {loadingTopStudents ? (
+              <div className="flex justify-center items-center h-32">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2 text-slate-500">Loading top students...</span>
+              </div>
+            ) : topStudents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {topStudents.map((student, index) => (
+                  <Card key={student.id} className="shadow-md bg-white rounded-lg overflow-hidden border-0">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
+                      <div className="relative mx-auto mb-3 w-16 h-16">
+                        <Avatar className="w-16 h-16 mx-auto border-2 border-white shadow-md">
+                          <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xl font-bold">
+                            {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-8 w-8" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Badge className={`absolute -bottom-1 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm ${
+                          index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
+                          index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
+                          'bg-gradient-to-r from-orange-400 to-orange-500'
+                        }`}>
+                          {index === 0 ? <Trophy className="h-2 w-2 mr-1" /> : <Star className="h-2 w-2 mr-1" />}
+                          #{index + 1}
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-sm font-semibold text-slate-800 text-center">
+                        {student.first_name} {student.last_name}
+                      </CardTitle>
+                    </div>
+                    <CardContent className="pt-2 pb-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-600">Class:</span>
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5">
+                            {student.class || "N/A"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-600">Score:</span>
+                          <span className="font-bold text-blue-600 text-sm">{student.latest_score}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-600">Test:</span>
+                          <span className="text-xs font-medium text-slate-800 truncate max-w-[100px]">{student.test_title}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <Trophy className="h-12 w-12 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-600">No top students to display yet.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>
