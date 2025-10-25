@@ -154,15 +154,15 @@ const StudentDashboardPage = () => {
   }, [fetchActiveBanners, fetchTopStudents]); // Removed topStudents from dependencies to prevent potential infinite loop
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
       <Header />
 
       {/* Hero Banner (Auto Slider) */}
       <section className="mb-8">
         {loadingBanners ? (
-          <div className="flex justify-center items-center h-48 bg-muted rounded-lg shadow-md">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Loading banners...</span>
+          <div className="flex justify-center items-center h-48 bg-white rounded-xl shadow-lg border border-slate-200">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-2 text-slate-500">Loading banners...</span>
           </div>
         ) : banners.length > 0 ? (
           <Carousel
@@ -178,36 +178,36 @@ const StudentDashboardPage = () => {
               {banners.map((banner) => (
                 <CarouselItem key={banner.id}>
                   <div className="p-1">
-                    <Card className="overflow-hidden rounded-lg shadow-md">
-                      <img src={banner.image_url} alt={banner.title} className="w-full h-48 object-cover rounded-lg" />
+                    <Card className="overflow-hidden rounded-xl shadow-xl border-0">
+                      <img src={banner.image_url} alt={banner.title} className="w-full h-48 object-cover" />
                     </Card>
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
+            <CarouselNext className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
           </Carousel>
         ) : (
-          <div className="flex justify-center items-center h-48 bg-muted rounded-lg shadow-md">
-            <p className="text-muted-foreground">No active banners available.</p>
+          <div className="flex justify-center items-center h-48 bg-white rounded-xl shadow-lg border border-slate-200">
+            <p className="text-slate-500">No active banners available.</p>
           </div>
         )}
       </section>
 
       {/* Quick Access Buttons */}
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-primary mb-4 text-center">Quick Access</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Quick Access</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
           {quickAccessItems.map((item) => (
             <Button
               key={item.name}
               variant="outline"
-              className="flex flex-col items-center justify-center p-3 h-auto text-center space-y-2 shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="flex flex-col items-center justify-center p-4 h-auto text-center space-y-2 bg-white shadow-md hover:shadow-lg border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 rounded-xl"
               onClick={() => navigate(item.path)}
             >
-              <item.icon className="h-8 w-8 text-primary" />
-              <span className="text-sm font-medium">{item.name}</span>
+              <item.icon className="h-8 w-8 text-blue-600" />
+              <span className="text-sm font-medium text-slate-700">{item.name}</span>
             </Button>
           ))}
         </div>
@@ -215,41 +215,45 @@ const StudentDashboardPage = () => {
 
       {/* Top 3 Students Section */}
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-primary mb-4 text-center">Top 3 Students</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Top 3 Students</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {loadingTopStudents ? (
-            <div className="md:col-span-3 flex justify-center items-center h-40">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading top students...</span>
+            <div className="md:col-span-3 flex justify-center items-center h-40 bg-white rounded-xl shadow-lg border border-slate-200">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="ml-2 text-slate-500">Loading top students...</span>
             </div>
           ) : topStudents.length > 0 ? (
             topStudents.map((student, index) => (
-              <Card key={student.id} className="shadow-md rounded-lg p-4 text-center">
-                <CardHeader className="pb-2">
+              <Card key={student.id} className="shadow-lg bg-white rounded-xl overflow-hidden border-0">
+                <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
                   <div className="relative mx-auto mb-2 w-20 h-20">
-                    <Avatar className="w-20 h-20 mx-auto">
+                    <Avatar className="w-20 h-20 mx-auto border-2 border-white shadow-md">
                       <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold">
                         {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-10 w-10" />}
                       </AvatarFallback>
                     </Avatar>
-                    <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-500 text-white text-sm font-bold px-2 py-1 rounded-full">
+                    <Badge className={`absolute -bottom-2 left-1/2 -translate-x-1/2 text-white text-sm font-bold px-2 py-1 rounded-full shadow-md ${
+                      index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
+                      index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
+                      'bg-gradient-to-r from-orange-400 to-orange-500'
+                    }`}>
                       #{index + 1}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg font-semibold">
+                  <CardTitle className="text-lg font-semibold text-slate-800">
                     {student.first_name} {student.last_name}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  <p>Class: {student.class || "N/A"}</p>
-                  <p>Latest Score: <span className="font-medium text-foreground">{student.latest_score}</span></p>
-                  <p>Test: {student.test_title}</p>
+                <CardContent className="text-sm pt-4">
+                  <p className="text-slate-600 mb-1">Class: <span className="font-medium text-slate-800">{student.class || "N/A"}</span></p>
+                  <p className="text-slate-600 mb-1">Latest Score: <span className="font-bold text-blue-600">{student.latest_score}</span></p>
+                  <p className="text-slate-600">Test: <span className="font-medium text-slate-800">{student.test_title}</span></p>
                 </CardContent>
               </Card>
             ))
           ) : (
-            <div className="md:col-span-3 text-center text-lg text-muted-foreground py-4">
+            <div className="md:col-span-3 text-center text-lg text-slate-500 py-8 bg-white rounded-xl shadow-lg border border-slate-200">
               No top students to display yet.
             </div>
           )}
