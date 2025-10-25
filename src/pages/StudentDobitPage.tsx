@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, MessageSquare, Loader2, User as UserIcon, UploadCloud, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, MessageSquare, Loader2, User as UserIcon, UploadCloud, CheckCircle, XCircle, FileText, Calendar, Clock } from "lucide-react";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useSession } from "@/components/SessionContextProvider";
 import { showError, showSuccess } from "@/utils/toast";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const classes = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"];
 const subjects = ["Mathematics", "Science", "English", "History", "Geography", "Physics", "Chemistry", "Biology", "Computer Science", "General"];
@@ -204,33 +205,35 @@ const StudentDobitPage = () => {
 
   if (sessionLoading || loadingUserClass) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <span className="ml-3 text-lg text-muted-foreground">Loading...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <span className="text-lg text-slate-700">Loading...</span>
+        </div>
       </div>
     );
   }
 
   if (!userClass) {
     return (
-      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
+      <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="w-full max-w-4xl mb-6">
-          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+          <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2 bg-white shadow-md hover:shadow-lg transition-shadow">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Dashboard</span>
           </Button>
         </div>
-        <Card className="w-full max-w-4xl shadow-lg rounded-lg text-center p-8">
-          <CardHeader>
-            <UserIcon className="h-12 w-12 text-primary mx-auto mb-4" />
-            <CardTitle className="text-3xl font-bold text-primary">Dobit Box</CardTitle>
-            <CardDescription className="text-muted-foreground">
+        <Card className="w-full max-w-4xl shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white text-center">
+            <UserIcon className="h-16 w-16 mx-auto mb-4 bg-white/20 p-3 rounded-full" />
+            <CardTitle className="text-3xl font-bold">Dobit Box</CardTitle>
+            <CardDescription className="text-blue-100 mt-2">
               आपकी क्लास की जानकारी नहीं मिली।
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-semibold text-yellow-800 mb-2">संदेह प्रस्तुत करने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
-            <Button onClick={() => navigate("/profile")} className="bg-yellow-600 hover:bg-yellow-700 text-white">
+          </div>
+          <CardContent className="p-8 text-center">
+            <p className="text-lg font-semibold text-slate-700 mb-6">संदेह प्रस्तुत करने के लिए, कृपया अपनी प्रोफ़ाइल में अपनी क्लास अपडेट करें।</p>
+            <Button onClick={() => navigate("/profile")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md hover:shadow-lg transition-shadow">
               प्रोफ़ाइल अपडेट करें
             </Button>
           </CardContent>
@@ -241,137 +244,212 @@ const StudentDobitPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
-      <div className="w-full max-w-4xl mb-6">
-        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8 pb-20 md:pb-8 bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="w-full max-w-5xl mb-6">
+        <Button variant="outline" onClick={() => navigate("/student-dashboard")} className="flex items-center space-x-2 bg-white shadow-md hover:shadow-lg transition-shadow">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </Button>
       </div>
-      <Card className="w-full max-w-4xl shadow-lg rounded-lg p-8">
-        <CardHeader className="text-center">
-          <MessageSquare className="h-12 w-12 text-primary mx-auto mb-4" />
-          <CardTitle className="text-3xl font-bold text-primary">Dobit Box</CardTitle>
-          <CardDescription className="text-muted-foreground">
+      
+      <Card className="w-full max-w-5xl shadow-xl rounded-2xl overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 text-white">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-white/20 p-4 rounded-full">
+              <MessageSquare className="h-12 w-12 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold text-center">Dobit Box</CardTitle>
+          <CardDescription className="text-blue-100 text-center mt-2">
             अपनी क्लास ({userClass}) के लिए संदेह प्रस्तुत करें या अपने मौजूदा संदेह देखें।
           </CardDescription>
-        </CardHeader>
-        <CardContent>
+        </div>
+        
+        <CardContent className="p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="submit">Submit New Doubt</TabsTrigger>
-              <TabsTrigger value="my-doubts">My Doubts</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100 p-1 rounded-xl">
+              <TabsTrigger 
+                value="submit" 
+                className="flex items-center justify-center data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all"
+              >
+                <UploadCloud className="h-4 w-4 mr-2" /> Submit New Doubt
+              </TabsTrigger>
+              <TabsTrigger 
+                value="my-doubts" 
+                className="flex items-center justify-center data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg transition-all"
+              >
+                <FileText className="h-4 w-4 mr-2" /> My Doubts
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="submit" className="mt-0 space-y-6">
-              <form onSubmit={handleSubmitDoubt} className="space-y-6">
-                <div>
-                  <Label htmlFor="title">Doubt Title</Label>
-                  <Input
-                    id="title"
-                    type="text"
-                    placeholder="e.g., Question about Photosynthesis"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="mt-1"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Detailed Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Explain your doubt in detail..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={6}
-                    className="mt-1"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Select onValueChange={setSelectedSubject} value={selectedSubject} required>
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder="Select subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subjects.map((sub) => (
-                        <SelectItem key={sub} value={sub}>
-                          {sub}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="attachment">Attachment (Optional)</Label>
-                  <Input
-                    id="attachment"
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={handleAttachmentChange}
-                    className="mt-1"
-                  />
-                  {attachmentFile && (
-                    <p className="text-sm text-muted-foreground mt-1">Selected: {attachmentFile.name}</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-                  Submit Doubt
-                </Button>
-              </form>
+            <TabsContent value="submit" className="mt-0">
+              <Card className="shadow-md border-0">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold text-slate-800">Submit a New Doubt</CardTitle>
+                  <CardDescription className="text-slate-600">
+                    Fill in the details below to submit your doubt
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmitDoubt} className="space-y-6">
+                    <div>
+                      <Label htmlFor="title" className="text-slate-700 font-medium">Doubt Title</Label>
+                      <Input
+                        id="title"
+                        type="text"
+                        placeholder="e.g., Question about Photosynthesis"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="mt-1 border-slate-300 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description" className="text-slate-700 font-medium">Detailed Description</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Explain your doubt in detail..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={6}
+                        className="mt-1 border-slate-300 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="subject" className="text-slate-700 font-medium">Subject</Label>
+                      <Select onValueChange={setSelectedSubject} value={selectedSubject} required>
+                        <SelectTrigger className="w-full mt-1 border-slate-300 focus:border-blue-500">
+                          <SelectValue placeholder="Select subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.map((sub) => (
+                            <SelectItem key={sub} value={sub}>
+                              {sub}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="attachment" className="text-slate-700 font-medium">Attachment (Optional)</Label>
+                      <div className="mt-1 flex items-center space-x-2">
+                        <Input
+                          id="attachment"
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={handleAttachmentChange}
+                          className="border-slate-300 focus:border-blue-500"
+                        />
+                        {attachmentFile && (
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            {attachmentFile.name}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-xl shadow-md hover:shadow-lg transition-all duration-300" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                      Submit Doubt
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="my-doubts" className="mt-0 space-y-4">
+            <TabsContent value="my-doubts" className="mt-0">
               {loadingMyDoubts ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading your doubts...</span>
+                <div className="flex justify-center items-center h-40 bg-white rounded-xl shadow-sm border border-slate-200">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-slate-600">Loading your doubts...</span>
                 </div>
               ) : myDoubts.length > 0 ? (
                 <div className="space-y-4">
                   {myDoubts.map((doubt) => (
-                    <Card key={doubt.id} className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="text-lg font-semibold">{doubt.title}</h3>
-                          <p className="text-sm text-muted-foreground">Subject: {doubt.subject} | Class: {doubt.class}</p>
-                          <p className="text-xs text-gray-500">Submitted: {format(new Date(doubt.created_at), "PPP HH:mm")}</p>
-                        </div>
-                        <div>
-                          {doubt.status === 'resolved' ? (
-                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 flex items-center">
-                              <CheckCircle className="h-3 w-3 mr-1" /> Resolved
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 flex items-center">
-                              <XCircle className="h-3 w-3 mr-1" /> Pending
-                            </span>
-                          )}
+                    <Card key={doubt.id} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-0">
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="text-xl font-semibold text-slate-800">{doubt.title}</h3>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                                {doubt.subject}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-200">
+                                {doubt.class}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center text-xs text-slate-500 mt-2">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              <span>{format(new Date(doubt.created_at), "PPP")}</span>
+                              <Clock className="h-3 w-3 ml-2 mr-1" />
+                              <span>{format(new Date(doubt.created_at), "HH:mm")}</span>
+                            </div>
+                          </div>
+                          <div>
+                            {doubt.status === 'resolved' ? (
+                              <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200">
+                                <CheckCircle className="h-3 w-3 mr-1" /> Resolved
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-200">
+                                <XCircle className="h-3 w-3 mr-1" /> Pending
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <p className="text-muted-foreground text-sm mb-2 whitespace-pre-wrap">{doubt.description}</p>
-                      {doubt.attachment_url && (
-                        <p className="text-sm text-blue-600 hover:underline mb-2">
-                          Attachment: <a href={doubt.attachment_url} target="_blank" rel="noopener noreferrer">{doubt.attachment_url.split('/').pop()}</a>
-                        </p>
-                      )}
-                      {doubt.status === 'resolved' && doubt.resolution_text && (
-                        <Card className="mt-3 p-3 bg-green-50 border border-green-200">
-                          <h4 className="font-semibold text-green-800 mb-1">Resolution:</h4>
-                          <p className="text-sm text-green-700 whitespace-pre-wrap">{doubt.resolution_text}</p>
-                          {doubt.resolved_at && (
-                            <p className="text-xs text-green-600 mt-1">Resolved on: {format(new Date(doubt.resolved_at), "PPP HH:mm")}</p>
-                          )}
-                        </Card>
-                      )}
+                      <div className="p-4 bg-white">
+                        <p className="text-slate-700 text-sm mb-3 whitespace-pre-wrap">{doubt.description}</p>
+                        {doubt.attachment_url && (
+                          <div className="mb-3">
+                            <p className="text-sm text-slate-600 mb-1">Attachment:</p>
+                            <a 
+                              href={doubt.attachment_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
+                            >
+                              <FileText className="h-3 w-3 mr-1" />
+                              {doubt.attachment_url.split('/').pop()}
+                            </a>
+                          </div>
+                        )}
+                        {doubt.status === 'resolved' && doubt.resolution_text && (
+                          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <h4 className="font-semibold text-green-800 mb-1 flex items-center">
+                              <CheckCircle className="h-4 w-4 mr-1" /> Resolution:
+                            </h4>
+                            <p className="text-sm text-green-700 whitespace-pre-wrap">{doubt.resolution_text}</p>
+                            {doubt.resolved_at && (
+                              <p className="text-xs text-green-600 mt-2 flex items-center">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                Resolved on: {format(new Date(doubt.resolved_at), "PPP HH:mm")}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </Card>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-lg text-muted-foreground">आपने अभी तक कोई संदेह प्रस्तुत नहीं किया है।</p>
+                <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-slate-200">
+                  <MessageSquare className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">No Doubts Submitted</h3>
+                  <p className="text-slate-600">आपने अभी तक कोई संदेह प्रस्तुत नहीं किया है।</p>
+                  <Button 
+                    onClick={() => setActiveTab("submit")} 
+                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Submit Your First Doubt
+                  </Button>
+                </div>
               )}
             </TabsContent>
           </Tabs>
