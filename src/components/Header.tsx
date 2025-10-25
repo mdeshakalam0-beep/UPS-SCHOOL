@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Bell, School, XCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ const Header = () => {
   }, [fetchSchoolSettings]);
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg mb-6">
+    <header className="flex items-center justify-between p-4 bg-card shadow-md rounded-lg mb-6">
       {/* Left: School Logo and Name */}
       <div className="flex items-center space-x-2">
         {loadingSettings ? (
