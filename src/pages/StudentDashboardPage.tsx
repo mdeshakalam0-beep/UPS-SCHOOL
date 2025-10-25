@@ -6,14 +6,14 @@ import Header from "@/components/Header";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2, User as UserIcon } from "lucide-react";
+import { Video, MonitorPlay, ClipboardCheck, FileText, Award, Book, MessageSquare, Loader2, User as UserIcon, Star, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BottomNavigationBar from "@/components/BottomNavigationBar";
 import { supabase } from "@/lib/supabaseClient";
 import { showError } from "@/utils/toast";
-import Autoplay from "embla-carousel-autoplay"; // Import Autoplay
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // New import for Avatar
-import { Badge } from "@/components/ui/badge"; // Import Badge component
+import Autoplay from "embla-carousel-autoplay";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Banner {
   id: string;
@@ -24,7 +24,7 @@ interface Banner {
 }
 
 interface TopStudent {
-  id: string; // User ID
+  id: string;
   first_name: string;
   last_name: string | null;
   class: string | null;
@@ -38,8 +38,8 @@ const StudentDashboardPage = () => {
   const navigate = useNavigate();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loadingBanners, setLoadingBanners] = useState(true);
-  const [topStudents, setTopStudents] = useState<TopStudent[]>([]); // New state for top students
-  const [loadingTopStudents, setLoadingTopStudents] = useState(true); // New state for loading top students
+  const [topStudents, setTopStudents] = useState<TopStudent[]>([]);
+  const [loadingTopStudents, setLoadingTopStudents] = useState(true);
 
   const quickAccessItems = [
     { name: "Recorded Class", icon: Video, path: "/recorded-class" },
@@ -48,7 +48,7 @@ const StudentDashboardPage = () => {
     { name: "Subjective Test", icon: FileText, path: "/subjective-test" },
     { name: "Results", icon: Award, path: "/results" },
     { name: "Notes/PDF", icon: Book, path: "/notes-pdf" },
-    { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" }, // Updated path
+    { name: "Dobit Box", icon: MessageSquare, path: "/dobit-box" },
   ];
 
   const fetchActiveBanners = useCallback(async () => {
@@ -71,7 +71,6 @@ const StudentDashboardPage = () => {
 
   const fetchTopStudents = useCallback(async () => {
     setLoadingTopStudents(true);
-    // Fetch all objective test results, ordered by submission time descending
     const { data, error } = await supabase
       .from('student_objective_results')
       .select(`
@@ -81,17 +80,15 @@ const StudentDashboardPage = () => {
         objective_tests (title),
         profiles (first_name, last_name, avatar_url, class)
       `)
-      .order('submitted_at', { ascending: false }); // Order by latest submission first
+      .order('submitted_at', { ascending: false });
 
     if (error) {
       console.error("Error fetching top students:", error);
       showError("Failed to load top students.");
       setTopStudents([]);
     } else {
-      // Process data to get the latest score for each unique user
       const latestScoresByUser: { [userId: string]: TopStudent } = {};
       data.forEach((result: any) => {
-        // Only consider the latest submission for each user
         if (!latestScoresByUser[result.user_id] || new Date(result.submitted_at) > new Date(latestScoresByUser[result.user_id].submitted_at)) {
           latestScoresByUser[result.user_id] = {
             id: result.user_id,
@@ -106,7 +103,6 @@ const StudentDashboardPage = () => {
         }
       });
 
-      // Convert to array, sort by score (descending), and take top 3
       const sortedTopStudents = Object.values(latestScoresByUser)
         .sort((a, b) => b.latest_score - a.latest_score)
         .slice(0, 3);
@@ -118,9 +114,8 @@ const StudentDashboardPage = () => {
 
   useEffect(() => {
     fetchActiveBanners();
-    fetchTopStudents(); // Initial fetch for top students
+    fetchTopStudents();
 
-    // Realtime subscription for objective test results
     const resultsChannel = supabase
       .channel('top_students_results_changes')
       .on(
@@ -128,12 +123,11 @@ const StudentDashboardPage = () => {
         { event: '*', schema: 'public', table: 'student_objective_results' },
         (payload) => {
           console.log('Realtime change in student_objective_results:', payload);
-          fetchTopStudents(); // Re-fetch top students on any change
+          fetchTopStudents();
         }
       )
       .subscribe();
 
-    // Realtime subscription for profile changes (e.g., avatar_url, name)
     const profilesChannel = supabase
       .channel('top_students_profiles_changes')
       .on(
@@ -141,7 +135,6 @@ const StudentDashboardPage = () => {
         { event: 'UPDATE', schema: 'public', table: 'profiles' },
         (payload) => {
           console.log('Realtime change in profiles:', payload);
-          // Re-fetch top students if any profile is updated, as it might affect their display
           fetchTopStudents();
         }
       )
@@ -151,7 +144,7 @@ const StudentDashboardPage = () => {
       resultsChannel.unsubscribe();
       profilesChannel.unsubscribe();
     };
-  }, [fetchActiveBanners, fetchTopStudents]); // Removed topStudents from dependencies to prevent potential infinite loop
+  }, [fetchActiveBanners, fetchTopStudents]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8 pb-20 md:pb-8">
@@ -168,8 +161,8 @@ const StudentDashboardPage = () => {
           <Carousel
             plugins={[
               Autoplay({
-                delay: 4000, // 4 seconds
-                stopOnInteraction: false, // Continue autoplay even after user interaction
+                delay: 4000,
+                stopOnInteraction: false,
               }),
             ]}
             className="w-full max-w-4xl mx-auto"
@@ -197,67 +190,97 @@ const StudentDashboardPage = () => {
 
       {/* Quick Access Buttons */}
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Quick Access</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          {quickAccessItems.map((item) => (
-            <Button
-              key={item.name}
-              variant="outline"
-              className="flex flex-col items-center justify-center p-4 h-auto text-center space-y-2 bg-white shadow-md hover:shadow-lg border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 rounded-xl"
-              onClick={() => navigate(item.path)}
-            >
-              <item.icon className="h-8 w-8 text-blue-600" />
-              <span className="text-sm font-medium text-slate-700">{item.name}</span>
-            </Button>
-          ))}
-        </div>
+        <Card className="w-full max-w-4xl mx-auto shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+            <h2 className="text-2xl font-bold text-center">Quick Access</h2>
+          </div>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {quickAccessItems.map((item) => (
+                <Button
+                  key={item.name}
+                  variant="outline"
+                  className="flex flex-col items-center justify-center p-4 h-auto text-center space-y-2 bg-white shadow-md hover:shadow-lg border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 rounded-xl"
+                  onClick={() => navigate(item.path)}
+                >
+                  <item.icon className="h-8 w-8 text-blue-600" />
+                  <span className="text-sm font-medium text-slate-700">{item.name}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
       {/* Top 3 Students Section */}
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Top 3 Students</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {loadingTopStudents ? (
-            <div className="md:col-span-3 flex justify-center items-center h-40 bg-white rounded-xl shadow-lg border border-slate-200">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-slate-500">Loading top students...</span>
+        <Card className="w-full max-w-4xl mx-auto shadow-xl rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+            <div className="flex items-center justify-center">
+              <Trophy className="h-8 w-8 mr-2" />
+              <h2 className="text-2xl font-bold">Top 3 Students</h2>
             </div>
-          ) : topStudents.length > 0 ? (
-            topStudents.map((student, index) => (
-              <Card key={student.id} className="shadow-lg bg-white rounded-xl overflow-hidden border-0">
-                <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <div className="relative mx-auto mb-2 w-20 h-20">
-                    <Avatar className="w-20 h-20 mx-auto border-2 border-white shadow-md">
-                      <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold">
-                        {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-10 w-10" />}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Badge className={`absolute -bottom-2 left-1/2 -translate-x-1/2 text-white text-sm font-bold px-2 py-1 rounded-full shadow-md ${
-                      index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
-                      index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
-                      'bg-gradient-to-r from-orange-400 to-orange-500'
-                    }`}>
-                      #{index + 1}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg font-semibold text-slate-800">
-                    {student.first_name} {student.last_name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm pt-4">
-                  <p className="text-slate-600 mb-1">Class: <span className="font-medium text-slate-800">{student.class || "N/A"}</span></p>
-                  <p className="text-slate-600 mb-1">Latest Score: <span className="font-bold text-blue-600">{student.latest_score}</span></p>
-                  <p className="text-slate-600">Test: <span className="font-medium text-slate-800">{student.test_title}</span></p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <div className="md:col-span-3 text-center text-lg text-slate-500 py-8 bg-white rounded-xl shadow-lg border border-slate-200">
-              No top students to display yet.
-            </div>
-          )}
-        </div>
+          </div>
+          <CardContent className="p-6">
+            {loadingTopStudents ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2 text-slate-500">Loading top students...</span>
+              </div>
+            ) : topStudents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {topStudents.map((student, index) => (
+                  <Card key={student.id} className="shadow-lg bg-white rounded-xl overflow-hidden border-0">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                      <div className="relative mx-auto mb-4 w-24 h-24">
+                        <Avatar className="w-24 h-24 mx-auto border-4 border-white shadow-lg">
+                          <AvatarImage src={student.avatar_url || undefined} alt={`${student.first_name} Avatar`} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-3xl font-bold">
+                            {student.first_name ? student.first_name[0].toUpperCase() : <UserIcon className="h-12 w-12" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Badge className={`absolute -bottom-2 left-1/2 -translate-x-1/2 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md ${
+                          index === 0 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 
+                          index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' : 
+                          'bg-gradient-to-r from-orange-400 to-orange-500'
+                        }`}>
+                          {index === 0 ? <Trophy className="h-3 w-3 mr-1" /> : <Star className="h-3 w-3 mr-1" />}
+                          #{index + 1}
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-lg font-semibold text-slate-800 text-center">
+                        {student.first_name} {student.last_name}
+                      </CardTitle>
+                    </div>
+                    <CardContent className="pt-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-slate-600">Class:</span>
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            {student.class || "N/A"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-slate-600">Score:</span>
+                          <span className="font-bold text-blue-600">{student.latest_score}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-slate-600">Test:</span>
+                          <span className="text-sm font-medium text-slate-800 truncate max-w-[120px]">{student.test_title}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Trophy className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+                <p className="text-lg text-slate-600">No top students to display yet.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       <MadeWithDyad />
