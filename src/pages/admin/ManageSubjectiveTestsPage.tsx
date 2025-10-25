@@ -714,62 +714,109 @@ const ManageSubjectiveTestsPage = () => {
               <DialogTitle>Submissions for "{selectedTestForSubmissions?.title}"</DialogTitle>
               <CardDescription>View and grade student submissions.</CardDescription>
             </DialogHeader>
-            {selectedDoubt && (
+            {gradingSubmission && (
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
                   <Label className="font-semibold">Student:</Label>
-                  <p>{selectedDoubt.profiles?.first_name} {selectedDoubt.profiles?.last_name} ({selectedDoubt.profiles?.email})</p>
+                  <p>{gradingSubmission.profiles?.first_name} {gradingSubmission.profiles?.last_name} ({gradingSubmission.profiles?.email})</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-semibold">Class / Subject:</Label>
-                  <p>{selectedDoubt.class} / {selectedDoubt.subject}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-semibold">Submitted On:</Label>
-                  <p>{format(new Date(selectedDoubt.created_at), "PPP HH:mm")}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-semibold">Doubt Description:</Label>
+                  <Label className="font-semibold">Question:</Label>
                   <Card className="p-3 bg-muted/50">
-                    <p className="whitespace-pre-wrap">{selectedDoubt.description}</p>
+                    <p className="whitespace-pre-wrap">{questions.find(q => q.id === gradingSubmission.question_id)?.question_text || "N/A"}</p>
                   </Card>
                 </div>
-                {selectedDoubt.attachment_url && (
+                <div className="space-y-2">
+                  <Label className="font-semibold">Student's Answer:</Label>
+                  <Card className="p-3 bg-muted/50">
+                    <p className="whitespace-pre-wrap">{gradingSubmission.answer_text || "No text answer provided."}</p>
+                  </Card>
+                </div>
+                {gradingSubmission.attachment_url && (
                   <div className="space-y-2">
                     <Label className="font-semibold">Attachment:</Label>
                     <p>
-                      <a href={selectedDoubt.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        View Attachment ({selectedDoubt.attachment_url.split('/').pop()})
+                      <a href={gradingSubmission.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        View Attachment ({gradingSubmission.attachment_url.split('/').pop()})
                       </a>
                     </p>
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="resolutionText" className="font-semibold">Resolution:</Label>
-                  <Textarea
-                    id="resolutionText"
-                    value={resolutionText}
-                    onChange={(e) => setResolutionText(e.target.value)}
-                    rows={6}
-                    placeholder="Type your resolution here..."
-                    className="w-full"
-                    disabled={selectedDoubt.status === 'resolved'}
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="grade" className="text-right">Grade:</Label>
+                  <Input
+                    id="grade"
+                    type="number"
+                    value={gradeData.grade || ""}
+                    onChange={handleGradeInputChange}
+                    className="col-span-3"
+                    min="0"
+                    max="100" // Assuming grades are out of 100
                   />
                 </div>
-                {selectedDoubt.status === 'resolved' && (
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Resolved by: {selectedDoubt.resolved_by_profile?.first_name} {selectedDoubt.resolved_by_profile?.last_name}</p>
-                    <p>Resolved at: {selectedDoubt.resolved_at ? format(new Date(selectedDoubt.resolved_at), "PPP HH:mm") : "N/A"}</p>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <Label htmlFor="feedback" className="font-semibold">Feedback:</Label>
+                  <Textarea
+                    id="feedback"
+                    value={gradeData.feedback}
+                    onChange={handleGradeInputChange}
+                    rows={4}
+                    placeholder="Provide feedback to the student..."
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student Name</TableHead>
+                  <TableHead>Question</TableHead>
+                  <TableHead>Answer</TableHead>
+                  <TableHead>Attachment</TableHead>
+                  <TableHead>Grade</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {submissions.length > 0 ? (
+                  submissions.map((submission) => (
+                    <TableRow key={submission.id}>
+                      <TableCell>{submission.profiles?.first_name} {submission.profiles?.last_name}</TableCell>
+                      <TableCell className="max-w-[150px] truncate">{questions.find(q => q.id === submission.question_id)?.question_text || "N/A"}</TableCell>
+                      <TableCell className="max-w-[150px] truncate">{submission.answer_text || "No text"}</TableCell>
+                      <TableCell>
+                        {submission.attachment_url ? (
+                          <a href={submission.attachment_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>
+                        ) : "No"}
+                      </TableCell>
+                      <TableCell>
+                        {submission.student_subjective_grades?.[0]?.grade !== null && submission.student_subjective_grades?.[0]?.grade !== undefined
+                          ? submission.student_subjective_grades[0].grade
+                          : "Pending"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleGradeSubmission(submission)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-4">
+                      No submissions found for this test.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
             <DialogFooter>
-              <Button variant="outline" onClick={handleDialogClose} disabled={isSubmitting}>Close</Button>
-              {selectedDoubt?.status === 'pending' && (
-                <Button onClick={handleSaveResolution} className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
-                  Mark as Resolved
+              <Button variant="outline" onClick={handleSubmissionDialogClose}>Close</Button>
+              {gradingSubmission && (
+                <Button onClick={handleSaveGrade} disabled={isSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Save Grade
                 </Button>
               )}
             </DialogFooter>
