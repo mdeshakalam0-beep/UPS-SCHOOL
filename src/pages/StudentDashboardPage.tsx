@@ -145,7 +145,7 @@ const StudentDashboardPage = () => {
         console.log(`  Class in result: ${result.profiles?.class}, Current User Class: ${currentUserClass}, isSameClass: ${isSameClass}`);
         console.log(`  Score: ${result.score}, Total Questions: ${result.total_questions}, isPerfectScore: ${isPerfectScore}`);
         console.log(`  Started At: ${result.started_at}, Submitted At: ${result.submitted_at}, Time Taken (s): ${timeTakenSeconds}`);
-
+        console.log(`  Filtering conditions: isSameClass=${isSameClass}, isPerfectScore=${isPerfectScore}, timeTakenValid=${timeTakenSeconds !== null && timeTakenSeconds >= 0}`); // NEW LOG
 
         // Filter by current user's class, perfect score, and valid time taken
         if (isSameClass && isPerfectScore && timeTakenSeconds !== null && timeTakenSeconds >= 0) {
