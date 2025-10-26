@@ -146,7 +146,7 @@ const ObjectiveTestPage = () => {
     setAnswersSubmitted((prev) => ({ ...prev, [currentQuestion.id]: answer }));
   };
 
-  const submitTestResults = useCallback(async () => {
+  const submitTestResults = useCallback(async (finalScore: number) => { // Accept finalScore as argument
     if (!user || !selectedTest || !testStartTime) { // Ensure testStartTime is available
       showError("User, test, or start time not found for submitting results.");
       return;
@@ -156,7 +156,7 @@ const ObjectiveTestPage = () => {
       const { error } = await supabase.from("student_objective_results").insert({
         user_id: user.id,
         test_id: selectedTest.id,
-        score: score,
+        score: finalScore, // Use finalScore here
         total_questions: totalQuestions,
         started_at: testStartTime.toISOString(), // Include started_at
         submitted_at: new Date().toISOString(), // Current time as submitted_at
@@ -170,7 +170,7 @@ const ObjectiveTestPage = () => {
       console.error("Error submitting test results:", error.message);
       showError(`Failed to submit test results: ${error.message}`);
     }
-  }, [user, selectedTest, score, totalQuestions, testStartTime]);
+  }, [user, selectedTest, totalQuestions, testStartTime]);
 
   const handleNextQuestion = useCallback(() => {
     // Check if an answer was selected
@@ -179,9 +179,11 @@ const ObjectiveTestPage = () => {
       return;
     }
 
+    let newScore = score; // Use a temporary variable for score calculation
     // Evaluate the current question's answer
     if (selectedAnswer === currentQuestion.correct_option) {
-      setScore((prevScore) => prevScore + 1);
+      newScore += 1;
+      setScore(newScore); // Update the state
     } else {
       showError("Wrong Answer!"); // Show pop-up for incorrect answer
     }
@@ -195,9 +197,9 @@ const ObjectiveTestPage = () => {
       setTestFinished(true);
       setShowResultDialog(true);
       showSuccess("Test completed! Calculating results...");
-      submitTestResults(); // Submit results with the final score
+      submitTestResults(newScore); // Submit results with the final calculated score
     }
-  }, [currentQuestionIndex, totalQuestions, selectedAnswer, currentQuestion, submitTestResults]);
+  }, [currentQuestionIndex, totalQuestions, selectedAnswer, currentQuestion, score, submitTestResults]); // Added score to dependencies
 
   // Timer effect
   useEffect(() => {
@@ -210,7 +212,7 @@ const ObjectiveTestPage = () => {
           setTestFinished(true);
           setShowResultDialog(true);
           showError("Time's up! Submitting your test...");
-          submitTestResults();
+          submitTestResults(score); // Submit results with current score when time is up
           return 0;
         }
         return prevTime - 1;
@@ -218,7 +220,7 @@ const ObjectiveTestPage = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, testStarted, testFinished, submitTestResults]);
+  }, [timeLeft, testStarted, testFinished, submitTestResults, score]); // Added score to dependencies
 
   const startTest = async (test: ObjectiveTest) => {
     setSelectedTest(test);
