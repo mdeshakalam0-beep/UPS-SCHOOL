@@ -14,6 +14,7 @@ import { showError } from "@/utils/toast";
 import Autoplay from "embla-carousel-autoplay";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "@/components/SessionContextProvider"; // Import useSession
 
 interface Banner {
   id: string;
@@ -38,6 +39,7 @@ interface TopStudent {
 
 const StudentDashboardPage = () => {
   const navigate = useNavigate();
+  const { user } = useSession(); // Get current user from session
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loadingBanners, setLoadingBanners] = useState(true);
   const [topStudents, setTopStudents] = useState<TopStudent[]>([]);
@@ -80,6 +82,36 @@ const StudentDashboardPage = () => {
 
   const fetchTopStudents = useCallback(async () => {
     setLoadingTopStudents(true);
+    if (!user) { // Ensure user is logged in
+      setTopStudents([]);
+      setLoadingTopStudents(false);
+      return;
+    }
+
+    // 1. Fetch current user's class
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('class')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error("Error fetching current user's profile for toppers:", profileError);
+      showError("Failed to load class information for toppers.");
+      setTopStudents([]);
+      setLoadingTopStudents(false);
+      return;
+    }
+
+    const currentUserClass = userProfile?.class;
+    if (!currentUserClass) {
+      console.warn("Current user's class not found. Cannot determine class toppers.");
+      setTopStudents([]);
+      setLoadingTopStudents(false);
+      return;
+    }
+
+    // 2. Query student_objective_results
     const { data, error } = await supabase
       .from('student_objective_results')
       .select(`
@@ -100,30 +132,16 @@ const StudentDashboardPage = () => {
     } else {
       const latestScoresByUser: { [userId: string]: TopStudent } = {};
       data.forEach((result: any) => {
-        const startedAt = result.started_at ? new Date(result.started_at) : null;
-        const submittedAt = new Date(result.submitted_at);
-        const timeTakenSeconds = startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
+        // Filter by current user's class and perfect score
+        if (result.profiles?.class === currentUserClass && result.score === result.total_questions) {
+          const startedAt = result.started_at ? new Date(result.started_at) : null;
+          const submittedAt = new Date(result.submitted_at);
+          const timeTakenSeconds = startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
 
-        // Only consider results where time taken is recorded and positive
-        if (timeTakenSeconds !== null && timeTakenSeconds >= 0) {
-          // If no entry for this user yet, or if this attempt is better
-          if (!latestScoresByUser[result.user_id]) {
-            latestScoresByUser[result.user_id] = {
-              id: result.user_id,
-              first_name: result.profiles?.first_name || 'Unknown',
-              last_name: result.profiles?.last_name,
-              class: result.profiles?.class,
-              avatar_url: result.profiles?.avatar_url,
-              latest_score: result.score,
-              total_questions: result.total_questions, // Assign total_questions
-              test_title: result.objective_tests?.title || 'N/A',
-              time_taken_seconds: timeTakenSeconds,
-              submitted_at: result.submitted_at,
-            };
-          } else {
-            const existing = latestScoresByUser[result.user_id];
-            // Prioritize less time, then higher score
-            if (timeTakenSeconds < existing.time_taken_seconds!) {
+          // Only consider results where time taken is recorded and positive
+          if (timeTakenSeconds !== null && timeTakenSeconds >= 0) {
+            // If no entry for this user yet, or if this attempt is better
+            if (!latestScoresByUser[result.user_id]) {
               latestScoresByUser[result.user_id] = {
                 id: result.user_id,
                 first_name: result.profiles?.first_name || 'Unknown',
@@ -131,24 +149,41 @@ const StudentDashboardPage = () => {
                 class: result.profiles?.class,
                 avatar_url: result.profiles?.avatar_url,
                 latest_score: result.score,
-                total_questions: result.total_questions, // Assign total_questions
+                total_questions: result.total_questions,
                 test_title: result.objective_tests?.title || 'N/A',
                 time_taken_seconds: timeTakenSeconds,
                 submitted_at: result.submitted_at,
               };
-            } else if (timeTakenSeconds === existing.time_taken_seconds && result.score > existing.latest_score) {
-              latestScoresByUser[result.user_id] = {
-                id: result.user_id,
-                first_name: result.profiles?.first_name || 'Unknown',
-                last_name: result.profiles?.last_name,
-                class: result.profiles?.class,
-                avatar_url: result.profiles?.avatar_url,
-                latest_score: result.score,
-                total_questions: result.total_questions, // Assign total_questions
-                test_title: result.objective_tests?.title || 'N/A',
-                time_taken_seconds: timeTakenSeconds,
-                submitted_at: result.submitted_at,
-              };
+            } else {
+              const existing = latestScoresByUser[result.user_id];
+              // Prioritize less time, then higher score
+              if (timeTakenSeconds < existing.time_taken_seconds!) {
+                latestScoresByUser[result.user_id] = {
+                  id: result.user_id,
+                  first_name: result.profiles?.first_name || 'Unknown',
+                  last_name: result.profiles?.last_name,
+                  class: result.profiles?.class,
+                  avatar_url: result.profiles?.avatar_url,
+                  latest_score: result.score,
+                  total_questions: result.total_questions,
+                  test_title: result.objective_tests?.title || 'N/A',
+                  time_taken_seconds: timeTakenSeconds,
+                  submitted_at: result.submitted_at,
+                };
+              } else if (timeTakenSeconds === existing.time_taken_seconds && result.score > existing.latest_score) {
+                latestScoresByUser[result.user_id] = {
+                  id: result.user_id,
+                  first_name: result.profiles?.first_name || 'Unknown',
+                  last_name: result.profiles?.last_name,
+                  class: result.profiles?.class,
+                  avatar_url: result.profiles?.avatar_url,
+                  latest_score: result.score,
+                  total_questions: result.total_questions,
+                  test_title: result.objective_tests?.title || 'N/A',
+                  time_taken_seconds: timeTakenSeconds,
+                  submitted_at: result.submitted_at,
+                };
+              }
             }
           }
         }
@@ -170,7 +205,7 @@ const StudentDashboardPage = () => {
       setTopStudents(sortedTopStudents);
     }
     setLoadingTopStudents(false);
-  }, []);
+  }, [user]); // Add user to dependencies
 
   useEffect(() => {
     fetchActiveBanners();

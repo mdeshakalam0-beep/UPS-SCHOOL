@@ -146,12 +146,6 @@ const ObjectiveTestPage = () => {
     setAnswersSubmitted((prev) => ({ ...prev, [currentQuestion.id]: answer }));
   };
 
-  const evaluateAnswer = useCallback(() => {
-    if (selectedAnswer === currentQuestion.correct_option) {
-      setScore((prevScore) => prevScore + 1);
-    }
-  }, [selectedAnswer, currentQuestion]);
-
   const submitTestResults = useCallback(async () => {
     if (!user || !selectedTest || !testStartTime) { // Ensure testStartTime is available
       showError("User, test, or start time not found for submitting results.");
@@ -179,18 +173,31 @@ const ObjectiveTestPage = () => {
   }, [user, selectedTest, score, totalQuestions, testStartTime]);
 
   const handleNextQuestion = useCallback(() => {
-    evaluateAnswer();
-    setSelectedAnswer(null);
+    // Check if an answer was selected
+    if (selectedAnswer === null) {
+      showError("Please select an answer before proceeding.");
+      return;
+    }
+
+    // Evaluate the current question's answer
+    if (selectedAnswer === currentQuestion.correct_option) {
+      setScore((prevScore) => prevScore + 1);
+    } else {
+      showError("Wrong Answer!"); // Show pop-up for incorrect answer
+    }
+
+    setSelectedAnswer(null); // Reset selected answer for the next question
 
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
     } else {
+      // This is the last question, finish the test
       setTestFinished(true);
       setShowResultDialog(true);
       showSuccess("Test completed! Calculating results...");
-      submitTestResults();
+      submitTestResults(); // Submit results with the final score
     }
-  }, [currentQuestionIndex, totalQuestions, evaluateAnswer, submitTestResults]);
+  }, [currentQuestionIndex, totalQuestions, selectedAnswer, currentQuestion, submitTestResults]);
 
   // Timer effect
   useEffect(() => {
