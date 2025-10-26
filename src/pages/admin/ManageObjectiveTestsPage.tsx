@@ -103,6 +103,23 @@ const ManageObjectiveTestsPage = () => {
     setLoading(false);
   }, []);
 
+  const fetchQuestions = useCallback(async (testId: string) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("objective_questions")
+      .select("*")
+      .eq("test_id", testId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching questions:", error);
+      showError("Failed to load questions for this test.");
+    } else {
+      setQuestions(data as ObjectiveQuestion[]);
+    }
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     fetchTests();
   }, [fetchTests]);
