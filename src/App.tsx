@@ -43,7 +43,7 @@ const App = () => (
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <SessionContextProvider>
           <NotificationProvider>
-            {/* Added a wrapper div for the premium background */}
+            {/* Removed data-aria-hidden and aria-hidden attributes */}
             <div className="min-h-screen bg-gradient-to-br from-background to-muted">
               <Routes>
                 <Route path="/" element={<LoginPage />} />
