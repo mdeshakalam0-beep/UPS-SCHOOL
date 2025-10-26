@@ -135,6 +135,12 @@ const StudentDashboardPage = () => {
 
       const latestScoresByUser: { [userId: string]: TopStudent } = {};
       data.forEach((result: any) => {
+        // NEW LOGS for debugging perfect score
+        console.log(`  DEBUG: result.score = ${result.score}, typeof: ${typeof result.score}`);
+        console.log(`  DEBUG: result.total_questions = ${result.total_questions}, typeof: ${typeof result.total_questions}`);
+        console.log(`  DEBUG: result.objective_tests?.title = ${result.objective_tests?.title}`);
+
+
         const isPerfectScore = result.score === result.total_questions;
         const isSameClass = result.profiles?.class === currentUserClass;
         const startedAt = result.started_at ? new Date(result.started_at) : null;
@@ -145,7 +151,7 @@ const StudentDashboardPage = () => {
         console.log(`  Class in result: ${result.profiles?.class}, Current User Class: ${currentUserClass}, isSameClass: ${isSameClass}`);
         console.log(`  Score: ${result.score}, Total Questions: ${result.total_questions}, isPerfectScore: ${isPerfectScore}`);
         console.log(`  Started At: ${result.started_at}, Submitted At: ${result.submitted_at}, Time Taken (s): ${timeTakenSeconds}`);
-        console.log(`  Filtering conditions: isSameClass=${isSameClass}, isPerfectScore=${isPerfectScore}, timeTakenValid=${timeTakenSeconds !== null && timeTakenSeconds >= 0}`); // NEW LOG
+        console.log(`  Filtering conditions: isSameClass=${isSameClass}, isPerfectScore=${isPerfectScore}, timeTakenValid=${timeTakenSeconds !== null && timeTakenSeconds >= 0}`);
 
         // Filter by current user's class, perfect score, and valid time taken
         if (isSameClass && isPerfectScore && timeTakenSeconds !== null && timeTakenSeconds >= 0) {
