@@ -104,6 +104,7 @@ const StudentDashboardPage = () => {
     }
 
     const currentUserClass = userProfile?.class;
+    console.log("Current User Class:", currentUserClass); // LOG 1
     if (!currentUserClass) {
       console.warn("Current user's class not found. Cannot determine class toppers.");
       setTopStudents([]);
@@ -130,10 +131,15 @@ const StudentDashboardPage = () => {
       showError("Failed to load top students.");
       setTopStudents([]);
     } else {
+      console.log("Raw Objective Results Data:", data); // LOG 2
+
       const latestScoresByUser: { [userId: string]: TopStudent } = {};
       data.forEach((result: any) => {
         // Filter by current user's class and perfect score
-        if (result.profiles?.class === currentUserClass && result.score === result.total_questions) {
+        const isPerfectScore = result.score === result.total_questions;
+        const isSameClass = result.profiles?.class === currentUserClass;
+
+        if (isSameClass && isPerfectScore) {
           const startedAt = result.started_at ? new Date(result.started_at) : null;
           const submittedAt = new Date(result.submitted_at);
           const timeTakenSeconds = startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
@@ -189,6 +195,8 @@ const StudentDashboardPage = () => {
         }
       });
 
+      console.log("Latest Scores By User (filtered for perfect scores in current class):", latestScoresByUser); // LOG 3
+
       const sortedTopStudents = Object.values(latestScoresByUser)
         .sort((a, b) => {
           // Primary sort: least time taken (ascending)
@@ -201,6 +209,8 @@ const StudentDashboardPage = () => {
           return b.latest_score - a.latest_score;
         })
         .slice(0, 3); // Get top 3
+
+      console.log("Sorted Top Students:", sortedTopStudents); // LOG 4
 
       setTopStudents(sortedTopStudents);
     }
