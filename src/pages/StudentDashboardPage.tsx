@@ -104,9 +104,9 @@ const StudentDashboardPage = () => {
     }
 
     const currentUserClass = userProfile?.class;
-    console.log("Current User Class:", currentUserClass); // LOG 1
+    console.log("LOG 1: Current User Class:", currentUserClass); 
     if (!currentUserClass) {
-      console.warn("Current user's class not found. Cannot determine class toppers.");
+      console.warn("LOG 1.1: Current user's class not found. Cannot determine class toppers.");
       setTopStudents([]);
       setLoadingTopStudents(false);
       return;
@@ -127,27 +127,47 @@ const StudentDashboardPage = () => {
       .order('submitted_at', { ascending: false }); // Order by submitted_at to get latest attempts
 
     if (error) {
-      console.error("Error fetching top students:", error);
+      console.error("LOG 2.1: Error fetching top students:", error);
       showError("Failed to load top students.");
       setTopStudents([]);
     } else {
-      console.log("Raw Objective Results Data:", data); // LOG 2
+      console.log("LOG 2.2: Raw Objective Results Data:", data); 
 
       const latestScoresByUser: { [userId: string]: TopStudent } = {};
       data.forEach((result: any) => {
-        // Filter by current user's class and perfect score
         const isPerfectScore = result.score === result.total_questions;
         const isSameClass = result.profiles?.class === currentUserClass;
+        const startedAt = result.started_at ? new Date(result.started_at) : null;
+        const submittedAt = new Date(result.submitted_at);
+        const timeTakenSeconds = startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
 
-        if (isSameClass && isPerfectScore) {
-          const startedAt = result.started_at ? new Date(result.started_at) : null;
-          const submittedAt = new Date(result.submitted_at);
-          const timeTakenSeconds = startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
+        console.log(`LOG 3.1: Processing result for user_id: ${result.user_id}, Test: ${result.objective_tests?.title}`);
+        console.log(`  Class in result: ${result.profiles?.class}, Current User Class: ${currentUserClass}, isSameClass: ${isSameClass}`);
+        console.log(`  Score: ${result.score}, Total Questions: ${result.total_questions}, isPerfectScore: ${isPerfectScore}`);
+        console.log(`  Started At: ${result.started_at}, Submitted At: ${result.submitted_at}, Time Taken (s): ${timeTakenSeconds}`);
 
-          // Only consider results where time taken is recorded and positive
-          if (timeTakenSeconds !== null && timeTakenSeconds >= 0) {
-            // If no entry for this user yet, or if this attempt is better
-            if (!latestScoresByUser[result.user_id]) {
+
+        // Filter by current user's class, perfect score, and valid time taken
+        if (isSameClass && isPerfectScore && timeTakenSeconds !== null && timeTakenSeconds >= 0) {
+          // If no entry for this user yet, or if this attempt is better
+          if (!latestScoresByUser[result.user_id]) {
+            latestScoresByUser[result.user_id] = {
+              id: result.user_id,
+              first_name: result.profiles?.first_name || 'Unknown',
+              last_name: result.profiles?.last_name,
+              class: result.profiles?.class,
+              avatar_url: result.profiles?.avatar_url,
+              latest_score: result.score,
+              total_questions: result.total_questions,
+              test_title: result.objective_tests?.title || 'N/A',
+              time_taken_seconds: timeTakenSeconds,
+              submitted_at: result.submitted_at,
+            };
+            console.log(`  LOG 3.2: Added new entry for ${result.user_id}`);
+          } else {
+            const existing = latestScoresByUser[result.user_id];
+            // Prioritize less time, then higher score
+            if (timeTakenSeconds < existing.time_taken_seconds!) {
               latestScoresByUser[result.user_id] = {
                 id: result.user_id,
                 first_name: result.profiles?.first_name || 'Unknown',
@@ -160,42 +180,29 @@ const StudentDashboardPage = () => {
                 time_taken_seconds: timeTakenSeconds,
                 submitted_at: result.submitted_at,
               };
-            } else {
-              const existing = latestScoresByUser[result.user_id];
-              // Prioritize less time, then higher score
-              if (timeTakenSeconds < existing.time_taken_seconds!) {
-                latestScoresByUser[result.user_id] = {
-                  id: result.user_id,
-                  first_name: result.profiles?.first_name || 'Unknown',
-                  last_name: result.profiles?.last_name,
-                  class: result.profiles?.class,
-                  avatar_url: result.profiles?.avatar_url,
-                  latest_score: result.score,
-                  total_questions: result.total_questions,
-                  test_title: result.objective_tests?.title || 'N/A',
-                  time_taken_seconds: timeTakenSeconds,
-                  submitted_at: result.submitted_at,
-                };
-              } else if (timeTakenSeconds === existing.time_taken_seconds && result.score > existing.latest_score) {
-                latestScoresByUser[result.user_id] = {
-                  id: result.user_id,
-                  first_name: result.profiles?.first_name || 'Unknown',
-                  last_name: result.profiles?.last_name,
-                  class: result.profiles?.class,
-                  avatar_url: result.profiles?.avatar_url,
-                  latest_score: result.score,
-                  total_questions: result.total_questions,
-                  test_title: result.objective_tests?.title || 'N/A',
-                  time_taken_seconds: timeTakenSeconds,
-                  submitted_at: result.submitted_at,
-                };
-              }
+              console.log(`  LOG 3.3: Updated entry for ${result.user_id} (better time)`);
+            } else if (timeTakenSeconds === existing.time_taken_seconds && result.score > existing.latest_score) {
+              latestScoresByUser[result.user_id] = {
+                id: result.user_id,
+                first_name: result.profiles?.first_name || 'Unknown',
+                last_name: result.profiles?.last_name,
+                class: result.profiles?.class,
+                avatar_url: result.profiles?.avatar_url,
+                latest_score: result.score,
+                total_questions: result.total_questions,
+                test_title: result.objective_tests?.title || 'N/A',
+                time_taken_seconds: timeTakenSeconds,
+                submitted_at: result.submitted_at,
+              };
+              console.log(`  LOG 3.4: Updated entry for ${result.user_id} (same time, better score)`);
             }
           }
+        } else {
+          console.log(`  LOG 3.5: Skipping result for ${result.user_id} (failed filter: isSameClass=${isSameClass}, isPerfectScore=${isPerfectScore}, timeTakenValid=${timeTakenSeconds !== null && timeTakenSeconds >= 0})`);
         }
       });
 
-      console.log("Latest Scores By User (filtered for perfect scores in current class):", latestScoresByUser); // LOG 3
+      console.log("LOG 4: Latest Scores By User (filtered for perfect scores in current class):", latestScoresByUser); 
 
       const sortedTopStudents = Object.values(latestScoresByUser)
         .sort((a, b) => {
@@ -210,7 +217,7 @@ const StudentDashboardPage = () => {
         })
         .slice(0, 3); // Get top 3
 
-      console.log("Sorted Top Students:", sortedTopStudents); // LOG 4
+      console.log("LOG 5: Sorted Top Students:", sortedTopStudents); 
 
       setTopStudents(sortedTopStudents);
     }
@@ -270,6 +277,10 @@ const StudentDashboardPage = () => {
                 stopOnInteraction: false,
               }),
             ]}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
             className="w-full max-w-4xl mx-auto"
           >
             <CarouselContent>
@@ -284,7 +295,7 @@ const StudentDashboardPage = () => {
               ))}
             </CarouselContent>
             <CarouselPrevious className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
-            {/* Removed CarouselNext as requested */}
+            <CarouselNext className="bg-white/80 hover:bg-white text-slate-700 border-slate-200" />
           </Carousel>
         ) : (
           <div className="flex justify-center items-center h-48 bg-white rounded-xl shadow-lg border border-slate-200">
